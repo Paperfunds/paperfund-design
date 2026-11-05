@@ -1,0 +1,201 @@
+/* Scoped finishing pass over the existing token terminal. */
+.pf-token-screen {
+  --trade-line: #34283f;
+}
+.pf-trade-switcher {
+  margin: 0 0 10px;
+  border: 1px solid var(--trade-line);
+  border-radius: 6px;
+  background: #13101c;
+}
+.pf-trade-switcher > summary {
+  padding: 8px 12px;
+  color: #c9b5e4;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pf-trade-switcher .pf-website-picker {
+  margin: 0;
+  padding: 12px;
+  border: 0;
+}
+.pf-trade-switcher .pf-website-picker-heading,
+.pf-trade-switcher .pf-web-picker-note {
+  display: none;
+}
+.pf-trade-socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: #13101b;
+  border: 1px solid var(--trade-line);
+  border-top: 0;
+  color: #a99ab9;
+  font-size: 10px;
+}
+.pf-trade-socials a {
+  padding: 3px 7px;
+  border: 1px solid #443452;
+  border-radius: 4px;
+  background: #21172d;
+  color: #d5bcf1;
+  text-decoration: none;
+}
+.pf-trade-verified {
+  margin-left: auto;
+  color: #78d4b3;
+}
+.pf-token-screen .pf-token-stats > div:first-child strong {
+  font-size: 20px;
+  color: #dfcaf9;
+}
+.pf-token-screen .pf-token-stats {
+  align-items: center;
+}
+.pf-token-screen .pf-price-canvas {
+  height: 410px;
+}
+.pf-token-screen .pf-practice-order {
+  background: linear-gradient(150deg, #1d142b 0%, #12101b 65%);
+  border-color: #4c365e;
+}
+.pf-token-screen .pf-practice-order > h2 {
+  font-size: 15px;
+  margin: 10px 0;
+}
+.pf-token-screen .pf-practice-quote {
+  background: #0d1717;
+  border: 1px solid #285747;
+  border-radius: 6px;
+  padding: 10px;
+}
+.pf-token-screen .pf-practice-quote p {
+  margin: 5px 0;
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .pf-practice-quote small {
+  color: #a7c8bc;
+  line-height: 1.5;
+  display: block;
+}
+.pf-token-screen .pf-practice-sides button[aria-pressed='true']:first-child {
+  color: #93edc6;
+  background: #17392f;
+  border-color: #42715d;
+}
+.pf-token-screen .pf-practice-sides button[aria-pressed='true']:last-child {
+  color: #ffc0d2;
+  background: #3c2030;
+  border-color: #90516d;
+}
+.pf-trade-presets summary {
+  font-size: 10px;
+  color: #baa2d3;
+  padding: 7px 0;
+  cursor: pointer;
+}
+.pf-trade-presets form {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  background: #171120;
+  border: 1px solid #49315d;
+  border-radius: 5px;
+}
+.pf-trade-presets form small {
+  color: #bfa6d9;
+}
+.pf-trade-presets .pf-ticket-presets {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.pf-trade-presets .pf-ticket-presets button {
+  font-size: 10px;
+}
+.pf-realized-summary {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--trade-line);
+  font-size: 11px;
+  color: #baa8cb;
+}
+.pf-realized-summary strong {
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+.pf-realized-summary small {
+  color: #9686a6;
+  font-size: 10px;
+}
+.pf-token-screen .pf-analytics-info {
+  overflow-wrap: anywhere;
+}
+.pf-token-screen .pf-analytics-info a {
+  color: #c6a3f4;
+  font-size: 11px;
+}
+.pf-token-screen .pf-analytics-info b {
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .table-scroll {
+  max-height: 300px;
+  overflow: auto;
+}
+.pf-token-screen .table-scroll th {
+  position: sticky;
+  top: 0;
+  background: #191221;
+  z-index: 1;
+}
+.pf-token-screen .table-scroll td {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pf-token-screen .pf-practice-positions article {
+  padding: 10px;
+  background: #15101e;
+}
+.pf-token-screen [role='alert'] {
+  color: #f3a9bf;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .pf-token-screen .pf-price-canvas {
+    height: 310px;
+  }
+  .pf-token-screen .pf-token-header {
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .pf-token-screen .pf-token-platform {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 10px;
+  }
+  .pf-token-screen .pf-token-platform small {
+    margin: 0;
+    font-size: 10px;
+  }
+  .pf-token-screen .pf-token-stats {
+    gap: 12px 6px;
+  }
+  .pf-token-screen .pf-token-stats > div:first-child strong {
+    font-size: 18px;
+  }
+  .pf-trade-verified {
+    width: 100%;
+    margin: 2px 0 0;
+  }
+  .pf-token-screen .pf-practice-order {
+    max-width: 100%;
+  }
+  .pf-token-screen .pf-chart-provenance {
+    overflow-wrap: anywhere;
+  }
+}

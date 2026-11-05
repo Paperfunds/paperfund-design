@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": { "rootDir": "..", "composite": false, "declaration": false, "declarationMap": false, "module": "ESNext", "moduleResolution": "Bundler", "jsx": "react-jsx", "lib": ["ES2023", "DOM", "DOM.Iterable"], "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"], "paths": { "@paperfund/shared/browser": ["../packages/shared/src/browser.ts"] }, "allowJs": true, "checkJs": false },
+  "include": ["../apps/web/src/**/*.ts", "../apps/web/src/**/*.tsx", "../packages/shared/src/browser.ts", "./transport.ts"]
+}

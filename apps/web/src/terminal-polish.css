@@ -1,0 +1,537 @@
+/* Presentation only. Shared Paperfund extension Night palette; no market/trading logic. */
+.pf-terminal-shell {
+  --polish-muted: #b0a4c2;
+  --polish-line: #30263e;
+}
+.pf-terminal-shell .obsidian-header {
+  min-height: 54px;
+  background: #10101c;
+}
+.pf-terminal-shell .obsidian-header .nav-item {
+  font-size: 13px;
+}
+.pf-terminal-shell .pf-night-page {
+  padding: 12px 18px;
+}
+.pf-terminal-shell button,
+.pf-terminal-shell select,
+.pf-terminal-shell input {
+  font-family: inherit;
+}
+.pf-terminal-shell button:disabled {
+  cursor: not-allowed;
+}
+.pf-terminal-pulse .pf-pulse-head {
+  padding: 2px 0 10px;
+}
+.pf-terminal-pulse .pf-pulse-head h1 {
+  font-size: 27px;
+  margin: 3px 0;
+}
+.pf-terminal-pulse .pf-pulse-toolbar {
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.pf-terminal-pulse .pf-pulse-toolbar input {
+  padding: 9px 12px;
+  background: #14121f;
+  border-color: #3b304e;
+  font-size: 13px;
+}
+.pf-terminal-pulse .pf-pulse-toolbar select,
+.pf-terminal-pulse .pf-control {
+  font-size: 12px;
+  padding: 8px 9px;
+  background: #1b1627;
+}
+.pf-terminal-pulse .pf-pulse-column {
+  border-radius: 7px;
+  background: #110e19;
+}
+.pf-terminal-pulse .pf-pulse-column-head {
+  padding: 12px 13px 10px;
+  background: #191423;
+  border-bottom: 1px solid var(--polish-line);
+}
+.pf-terminal-pulse .pf-pulse-column-head h2 {
+  font-size: 15px;
+  letter-spacing: -0.015em;
+  margin: 0 0 4px;
+}
+.pf-terminal-pulse .pf-pulse-column-head p {
+  color: #afa0be;
+  font-size: 11px;
+}
+.pf-terminal-pulse .pf-pulse-count {
+  font-size: 11px;
+  min-width: 27px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  border-radius: 5px;
+}
+.pf-terminal-pulse .pf-pulse-list {
+  height: calc(100dvh - 250px);
+  min-height: 350px;
+  padding: 0;
+  scrollbar-color: #59406e transparent;
+}
+.pf-terminal-pulse .pf-pulse-token {
+  padding: 8px 11px;
+  gap: 4px 8px;
+  background: transparent;
+  border-bottom: 1px solid #292032;
+}
+.pf-terminal-pulse .pf-pulse-token:hover {
+  background: #1b1426;
+}
+.pf-terminal-pulse .pf-pulse-avatar {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #5b4473;
+  background: linear-gradient(140deg, #342344, #1a1424);
+  border-radius: 7px;
+  font-size: 11px;
+}
+.pf-terminal-pulse .pf-row-identity {
+  gap: 8px;
+  padding-right: 20px;
+}
+.pf-terminal-pulse .pf-row-identity strong {
+  font-size: 14px;
+  letter-spacing: -0.015em;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pf-terminal-pulse .pf-row-identity > span:nth-child(2) {
+  overflow: hidden;
+}
+.pf-terminal-pulse .pf-row-identity small {
+  font-size: 12px;
+  color: #b5a7c6;
+}
+.pf-terminal-pulse .pf-row-age {
+  font-size: 11px;
+  color: #baa8d0;
+  font-variant-numeric: tabular-nums;
+}
+.pf-terminal-pulse .pf-watch {
+  top: 7px;
+  right: 6px;
+  font-size: 17px;
+  color: #9d84b6;
+}
+.pf-terminal-pulse .pf-watch[aria-pressed='true'] {
+  color: #d4b3ff;
+}
+.pf-terminal-pulse .pf-contract {
+  font-size: 10px;
+  color: #ab9abb;
+  line-height: 1.4;
+}
+.pf-terminal-pulse .pf-contract button {
+  font-size: 14px;
+  padding: 0 3px;
+}
+.pf-terminal-pulse .pf-row-source {
+  font-size: 10px;
+  color: #c9ace7;
+}
+.pf-terminal-pulse .pf-row-source > span:first-child {
+  background: #261a33;
+  border: 1px solid #443051;
+  border-radius: 4px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+.pf-terminal-pulse .pf-row-metrics {
+  grid-template-columns: 1.1fr 1.2fr 1fr 0.8fr;
+  gap: 8px;
+  padding: 2px 0;
+}
+.pf-terminal-pulse .pf-row-metrics span {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: baseline;
+}
+.pf-terminal-pulse .pf-row-metrics small {
+  font-size: 10px;
+  color: #ad9cbe;
+  line-height: 1.2;
+}
+.pf-terminal-pulse .pf-row-metrics b {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+}
+.pf-terminal-pulse .pf-row-curve {
+  gap: 8px;
+  min-height: 11px;
+}
+.pf-terminal-pulse .pf-row-curve > div {
+  font-size: 10px;
+  line-height: 1;
+}
+.pf-terminal-pulse .pf-row-curve progress {
+  height: 2px;
+  opacity: 0.85;
+}
+.pf-terminal-pulse .pf-pulse-footnote {
+  font-size: 11px;
+  color: #a392b4;
+  line-height: 1.5;
+  margin-top: 9px;
+}
+.pf-token-screen .pf-practice-mode {
+  font-size: 11px;
+  padding-bottom: 7px;
+  margin-bottom: 8px;
+  color: #b3a2c5;
+}
+.pf-token-screen .pf-terminal-grid {
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 328px;
+}
+.pf-token-screen .pf-token-header {
+  padding: 10px 13px;
+  background: #17121f;
+  border-color: #34273f;
+}
+.pf-token-screen .pf-token-header h1 {
+  font-size: 21px;
+  margin: 2px 0 4px;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+.pf-token-screen .pf-token-header .eyebrow {
+  color: #c7acdf;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.pf-token-screen .pf-token-header .pf-contract {
+  margin-top: 3px;
+  color: #b09bc5;
+}
+.pf-token-screen .pf-token-header .pf-pulse-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+}
+.pf-token-screen .pf-token-platform {
+  color: #d0b9e8;
+  font-size: 12px;
+}
+.pf-token-screen .pf-token-platform small {
+  font-size: 11px;
+  color: #a995bb;
+  margin-top: 5px;
+}
+.pf-token-screen .pf-token-stats {
+  padding: 10px 13px;
+  background: #120f1b;
+  border-color: #34273f;
+  gap: 12px;
+}
+.pf-token-screen .pf-token-stats > div + div {
+  border-left: 1px solid #2c2337;
+  padding-left: 12px;
+}
+.pf-token-screen .pf-token-stats small {
+  font-size: 11px;
+  color: #b29dc4;
+}
+.pf-token-screen .pf-token-stats strong {
+  font-size: 14px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+.pf-token-screen .pf-web-chart {
+  border-radius: 7px;
+}
+.pf-token-screen .pf-chart-controls {
+  padding: 8px 12px;
+  gap: 7px;
+  background: #17121f;
+  border-color: #34273f;
+}
+.pf-token-screen .pf-chart-controls strong {
+  font-size: 13px;
+}
+.pf-token-screen .pf-chart-controls small {
+  font-size: 10px;
+  color: #b2a0c3;
+}
+.pf-token-screen .pf-chart-controls button {
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: #1d1628;
+  border-color: #3c2d4c;
+}
+.pf-token-screen .pf-chart-controls button[aria-pressed='true'] {
+  background: #39234e;
+  color: #e4cdff;
+  border-color: #9d75c5;
+}
+.pf-token-screen .pf-price-ohlc {
+  padding: 9px 13px;
+  gap: 13px;
+  font-size: 11px;
+  color: #bca8cd;
+}
+.pf-token-screen .pf-price-canvas {
+  height: clamp(290px, calc(100dvh - 485px), 620px);
+}
+.pf-token-screen .pf-chart-provenance {
+  font-size: 11px;
+  color: #b5a2c7;
+  padding: 8px 12px;
+}
+.pf-token-screen .pf-chart-provenance select {
+  background: #21172e;
+  border: 1px solid #59406f;
+  color: #dec8f4;
+  border-radius: 4px;
+  padding: 3px 5px;
+}
+.pf-token-screen .pf-chart-source {
+  color: #b09ac3;
+}
+.pf-token-screen .pf-token-analytics {
+  border-radius: 7px;
+}
+.pf-token-screen .pf-analytics-tabs {
+  gap: 24px;
+  background: #17121f;
+}
+.pf-token-screen .pf-analytics-tabs button {
+  font-size: 12px;
+  color: #b8a2cb;
+}
+.pf-token-screen .pf-analytics-tabs button[aria-pressed='true'] {
+  color: #e0c5ff;
+}
+.pf-token-screen .pf-market-freshness {
+  color: #ac97bf;
+}
+/* Approved extension Night surfaces, pale purple primary action, compact form rhythm. */
+.pf-token-screen .pf-practice-order {
+  padding: 15px !important;
+  gap: 10px;
+  border: 1px solid #594268;
+  background: linear-gradient(155deg, #21192e, #13111f 75%);
+  border-radius: 9px;
+  box-shadow: 0 12px 35px #0003;
+  scrollbar-color: #59406e transparent;
+}
+.pf-ticket-brand {
+  gap: 9px;
+  border-color: #44334f;
+  padding-bottom: 11px;
+}
+.pf-ticket-brand img {
+  width: 29px;
+  height: 29px;
+}
+.pf-ticket-brand strong {
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.045em;
+}
+.pf-ticket-brand > span {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: #d4b5f0;
+  background: #2b1d39;
+  border-color: #67477e;
+}
+.pf-token-screen .pf-practice-order h2 {
+  font-size: 13px;
+  color: #c2add4;
+  font-weight: 550;
+}
+.pf-ticket-market {
+  padding: 7px 0 10px;
+  border-color: #44334f;
+  font-size: 14px;
+}
+.pf-ticket-market > strong {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.pf-ticket-market small,
+.pf-ticket-token small,
+.pf-ticket-cash > small {
+  color: #b6a2c9;
+  font-size: 10px;
+  letter-spacing: 0.025em;
+}
+.pf-ticket-token code {
+  color: #cfb9e2;
+  font-size: 11px;
+}
+.pf-ticket-cash {
+  background: #141020;
+  border: 1px solid #4b355e;
+  border-radius: 7px;
+  padding: 11px 12px;
+}
+.pf-token-screen .pf-practice-balance {
+  color: #e7d3ff;
+  font-size: 27px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+}
+.pf-token-screen .pf-practice-sides {
+  padding: 3px;
+  border-radius: 6px;
+  border-color: #4c365e;
+  background: #13101d;
+}
+.pf-token-screen .pf-practice-sides button {
+  padding: 9px;
+  font-size: 12px;
+}
+.pf-token-screen .pf-practice-sides button:first-child[aria-pressed='true'] {
+  background: #9d70df;
+  color: #160f22;
+}
+.pf-token-screen .pf-practice-sides button:last-child[aria-pressed='true'] {
+  background: #673452;
+  color: #ffe9f4;
+}
+.pf-token-screen .pf-practice-order label {
+  font-size: 12px;
+  color: #cfbddf;
+  gap: 6px;
+}
+.pf-token-screen .pf-practice-order input {
+  background: #110e1b;
+  border-color: #59416e;
+  border-radius: 6px;
+  font-size: 23px;
+  font-weight: 650;
+  padding: 10px 12px;
+}
+.pf-token-screen .pf-practice-order select {
+  background: #191322;
+  border-color: #59416e;
+  border-radius: 6px;
+  padding: 9px 10px;
+}
+.pf-ticket-presets {
+  gap: 5px;
+}
+.pf-ticket-presets button {
+  border-radius: 5px;
+  background: #251a33;
+  border-color: #503561;
+  color: #dec7ef;
+  font-size: 11px;
+  padding: 8px 2px;
+}
+.pf-token-screen .pf-practice-order > .button {
+  border-radius: 6px;
+  padding: 11px 8px;
+  font-size: 12px;
+}
+.pf-token-screen .pf-practice-order .primary {
+  background: linear-gradient(110deg, #bd9aff, #9061e5);
+  border-color: #c3a5f6;
+  color: #151021;
+  font-weight: 750;
+}
+.pf-token-screen .pf-practice-order .primary.sell {
+  background: linear-gradient(110deg, #ca7da6, #9a517b);
+  border-color: #d691b5;
+}
+.pf-token-screen .pf-practice-order p {
+  color: #c3b0d4;
+  font-size: 12px;
+}
+.pf-current-position {
+  border-color: #44334f;
+}
+.pf-current-position dt {
+  color: #b5a0c8;
+}
+.pf-current-position dd {
+  color: #e1cfef;
+  font-variant-numeric: tabular-nums;
+}
+.pf-current-position > small {
+  color: #ad96bf;
+}
+.pf-ticket-links {
+  border-color: #44334f;
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .pf-token-screen .pf-terminal-grid {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 10px;
+  }
+}
+@media (max-width: 760px) {
+  .pf-terminal-shell .pf-night-page {
+    padding: 10px;
+  }
+  .pf-terminal-pulse .pf-pulse-list {
+    height: 62dvh;
+  }
+  .pf-terminal-pulse .pf-pulse-column {
+    flex-basis: 92%;
+  }
+  .pf-terminal-pulse .pf-pulse-head .eyebrow {
+    font-size: 9px;
+  }
+  .pf-terminal-pulse .pf-pulse-feed-health {
+    font-size: 10px;
+  }
+  .pf-terminal-pulse .pf-row-identity > span:nth-child(2) {
+    display: block;
+  }
+  .pf-terminal-pulse .pf-row-identity small {
+    margin-top: 2px;
+    font-size: 11px;
+  }
+  .pf-terminal-pulse .pf-row-age {
+    font-size: 10px;
+  }
+  .pf-terminal-pulse .pf-row-metrics b {
+    font-size: 12px;
+  }
+  .pf-token-screen .pf-token-stats {
+    gap: 12px 8px;
+  }
+  .pf-token-screen .pf-token-stats > div + div {
+    padding-left: 0;
+    border: 0;
+  }
+  .pf-token-screen .pf-token-stats strong {
+    font-size: 13px;
+  }
+  .pf-token-screen .pf-price-canvas {
+    height: 330px;
+  }
+  .pf-token-screen .pf-chart-controls {
+    gap: 6px;
+    padding: 9px;
+  }
+  .pf-token-screen .pf-chart-controls button {
+    padding: 7px;
+    font-size: 11px;
+  }
+  .pf-token-screen .pf-analytics-tabs {
+    gap: 17px;
+  }
+  .pf-token-screen .pf-practice-order {
+    width: 100%;
+    max-height: none;
+  }
+}

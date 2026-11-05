@@ -1,0 +1,123 @@
+.pf-competition-summary {
+  padding: 18px;
+  margin-bottom: 24px;
+  border-color: #4a365e;
+  background: linear-gradient(130deg, #20152d, #100e18);
+}
+.pf-competition-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pf-competition-summary p {
+  color: #baaccb;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.pf-competition-summary a {
+  color: #cba8f5;
+}
+.pf-competition-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.pf-competition-metrics > div {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  background: #110d1c;
+  border: 1px solid #3c2c4f;
+  border-radius: 6px;
+  min-width: 0;
+}
+.pf-competition-metrics small {
+  color: #b9a3cf;
+  font-size: 11px;
+}
+.pf-competition-metrics b {
+  font-size: 17px;
+  color: #e5d8f4;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.pf-competition-metrics > div:first-child b {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.pf-competition-metrics span {
+  font-size: 10px;
+  color: #af9cc2;
+}
+.pf-competition-limits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 12px 0;
+  border-top: 1px solid #3d2b50;
+  color: #b6a4c9;
+  font-size: 11px;
+}
+.pf-competition-limits b {
+  color: #e0c9f1;
+}
+.pf-competition-summary details {
+  margin: 10px 0;
+  padding: 10px;
+  background: #181020;
+  border: 1px solid #3f2e51;
+  border-radius: 5px;
+}
+.pf-competition-summary summary {
+  color: #c5a5e9;
+  cursor: pointer;
+  font-size: 12px;
+}
+.pf-competition-summary > small {
+  color: #a390b8;
+  font-size: 10px;
+  line-height: 1.6;
+  display: block;
+}
+.pf-competition-summary [role='alert'] {
+  color: #f1a9bf;
+}
+.pf-recorded-distribution {
+  margin: 12px 0;
+}
+.pf-recorded-distribution details {
+  padding: 12px;
+  background: #181020;
+  border: 1px solid #3f2e51;
+  border-radius: 5px;
+}
+.pf-recorded-distribution summary {
+  color: #c5a5e9;
+  cursor: pointer;
+  font-size: 12px;
+}
+.pf-recorded-distribution p {
+  color: #baaccb;
+  font-size: 12px;
+}
+.pf-competition-summary .table-scroll {
+  overflow: auto;
+}
+@media (max-width: 1000px) {
+  .pf-competition-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .pf-competition-summary {
+    padding: 12px;
+  }
+  .pf-competition-metrics {
+    grid-template-columns: 1fr;
+  }
+  .pf-competition-metrics b {
+    font-size: 16px;
+  }
+}

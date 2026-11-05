@@ -1,0 +1,2093 @@
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Link,
+  NavLink,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
+
+import { ApiError, api, errorMessage, type BuyResult, type SellResult } from './api.js';
+import { WebsiteMarketPicker, WebsiteMarketChart } from './WebsiteMarkets.js';
+import { PulsePage } from './Pulse.js';
+import { PracticePage } from './Practice.js';
+import { OrderRecovery } from './OrderRecovery.js';
+import { useOrderPending } from './use-order-pending.js';
+import { competitionTrading } from './trading-account.js';
+import { TradePresets } from './TradePresets.js';
+import type { TradeQuotePreview } from '@paperfund/shared/browser';
+import { mintFromSearch, validMint } from './market-discovery.js';
+import {
+  formatSol,
+  formatUnits,
+  lamportsToSolInput,
+  percentageQuantity,
+  pnlClass,
+  shorten,
+  solTextToLamports,
+  venueName,
+} from './format.js';
+import type {
+  Account,
+  HourlyResult,
+  LeaderboardEntry,
+  MarketSupport,
+  Position,
+  PositionValuationResponse,
+  Round,
+  Trade,
+  User,
+} from './types.js';
+import { encodeBase58, getInjectedWallet } from './wallet.js';
+import { buyPreflightMessage } from '@paperfund/shared/browser';
+
+import { LandingPage, PublicHeader, PublicFooter } from './Landing.js';
+import { RewardsPage } from './Rewards.js';
+import { CompetitionSummary, RecordedDistribution } from './CompetitionSummary.js';
+import { isolatedCompetitionTest, competitionRewardUnit } from './competition-mode.js';
+import { competitionExecutions } from './trade-markers.js';
+import { TokenMarketView, type MarketTab } from './TokenMarketView.js';
+
+type Notice = { tone: 'success' | 'error' | 'info'; title: string; body: ReactNode };
+
+function requestKey(): string {
+  return globalThis.crypto.randomUUID();
+}
+
+function useAuth() {
+  const client = useQueryClient();
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const session = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      try {
+        return (await api.me()).user;
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) return null;
+        throw error;
+      }
+    },
+    retry: false,
+  });
+  const connect = useMutation({
+    mutationFn: async () => {
+      const wallet = getInjectedWallet();
+      if (!wallet)
+        throw new Error(
+          'No compatible Solana wallet was found. Install or enable a browser wallet first.',
+        );
+      return (await wallet.connect()).publicKey.toString();
+    },
+    onSuccess: (address) => {
+      setWalletAddress(address);
+      setWalletError(null);
+    },
+    onError: (error) => setWalletError(errorMessage(error)),
+  });
+  const signIn = useMutation({
+    mutationFn: async () => {
+      const wallet = getInjectedWallet();
+      if (!wallet || !walletAddress) throw new Error('Connect your wallet before signing in.');
+      const challenge = await api.challenge(walletAddress);
+      const signed = await wallet.signMessage(new TextEncoder().encode(challenge.message), 'utf8');
+      return (
+        await api.verify({ ...challenge, walletAddress, signature: encodeBase58(signed.signature) })
+      ).user;
+    },
+    onSuccess: (user) => {
+      client.setQueryData(['session'], user);
+      setWalletError(null);
+    },
+    onError: (error) => setWalletError(errorMessage(error)),
+  });
+  const logout = useMutation({
+    mutationFn: api.logout,
+    onSettled: async () => {
+      client.setQueryData(['session'], null);
+      await client.invalidateQueries();
+    },
+  });
+  useEffect(() => {
+    const expire = () => client.setQueryData(['session'], null);
+    window.addEventListener('paperfund:unauthenticated', expire);
+    return () => window.removeEventListener('paperfund:unauthenticated', expire);
+  }, [client]);
+  return {
+    user: session.data ?? null,
+    session,
+    walletAddress,
+    walletError,
+    connect,
+    signIn,
+    logout,
+  };
+}
+
+function useRound() {
+  return useQuery({ queryKey: ['round'], queryFn: api.currentRound, refetchInterval: 4_000 });
+}
+
+function useAccount(user: User | null) {
+  return useQuery({
+    queryKey: ['account', user?.id],
+    enabled: Boolean(user),
+    queryFn: async () => {
+      try {
+        return await api.account();
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'ROUND_ACCOUNT_NOT_FOUND') return null;
+        throw error;
+      }
+    },
+    refetchInterval: 4_000,
+    retry: false,
+  });
+}
+function useWebsiteTrades(user: User | null) {
+  return useInfiniteQuery({
+    queryKey: ['trades', user?.id],
+    enabled: !!user,
+    queryFn: ({ pageParam }) => api.trades(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    refetchInterval: 15000,
+  });
+}
+
+export function App() {
+  const location = useLocation();
+  const publicHost =
+    window.location.hostname === 'paperfund.app' ||
+    window.location.hostname === 'www.paperfund.app';
+  const applicationHost = [
+    'trade.paperfund.app',
+    'app.paperfund.app',
+    'localhost',
+    '127.0.0.1',
+  ].includes(window.location.hostname);
+  const publicPath = ['/', '/rules', '/privacy', '/support'].includes(location.pathname);
+  if (publicHost || (!applicationHost && publicPath))
+    return (
+      <div className="studio-site">
+        <PublicHeader />
+        <main>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/rules" element={<RulesPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+        <PublicFooter />
+      </div>
+    );
+  return <TradingApp />;
+}
+
+function TradingApp() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const selectedTradeMint = mintFromSearch(location.search);
+  const practiceMode = currentPath === '/practice';
+  const terminalMode = practiceMode || currentPath === '/pulse' || currentPath === '/';
+  const auth = useAuth();
+  const round = useRound();
+  const account = useAccount(auth.user);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const offset = round.data
+    ? Date.parse(round.data.serverTime) - (round.dataUpdatedAt || Date.now())
+    : 0;
+  const serverNow = now + offset;
+  const currentRound = round.data?.round ?? null;
+  const tradingOpen =
+    currentRound?.state === 'OPEN' && serverNow < Date.parse(currentRound.endsAtExclusive);
+  const countdown = currentRound
+    ? countdownText(Date.parse(currentRound.endsAtExclusive) - serverNow)
+    : '--:--';
+
+  useEffect(() => {
+    const previous = account.data?.roundId;
+    if (previous && currentRound?.id && previous !== currentRound.id) void account.refetch();
+  }, [currentRound?.id, account.data?.roundId]);
+
+  return (
+    <div className={'app-shell' + (terminalMode ? ' pf-terminal-shell' : '')}>
+      <main>
+        <header className="obsidian-header">
+          <Link className="app-brand" to="/pulse" aria-label="Paperfund home">
+            <BrandMark />
+            <span>Paperfund</span>
+            <small>TERMINAL</small>
+          </Link>
+          <nav aria-label="Primary navigation">
+            <NavItem to="/pulse">Pulse</NavItem>
+            <NavItem
+              to={
+                (competitionTrading ? '/trade' : '/practice') +
+                (selectedTradeMint ? '?mint=' + encodeURIComponent(selectedTradeMint) : '')
+              }
+            >
+              Trade
+            </NavItem>
+            <NavItem
+              to={
+                (competitionTrading ? '/trade?view=portfolio' : '/practice?view=portfolio') +
+                (selectedTradeMint ? '&mint=' + encodeURIComponent(selectedTradeMint) : '')
+              }
+            >
+              Portfolio
+            </NavItem>
+            <NavItem to="/hourly">Leaderboard</NavItem>
+            <NavItem to="/daily">Daily</NavItem>
+            <NavItem to="/rewards">Rewards</NavItem>
+            <NavItem to="/history">History</NavItem>
+            {!competitionTrading && <NavItem to="/trade">Competitions</NavItem>}
+          </nav>
+          {terminalMode && !competitionTrading ? (
+            <span className="pf-web-label">PRACTICE · NO REWARDS</span>
+          ) : (
+            <WalletControl auth={auth} />
+          )}
+        </header>
+        {!terminalMode && (
+          <div className="competition-bar">
+            <div>
+              <span className="status-dot" /> PAPER TRADING <span className="bar-separator">/</span>{' '}
+              {practiceMode ? 'PRACTICE · NO REWARD ELIGIBILITY' : 'HOURLY COMPETITIONS'}
+            </div>
+            {!practiceMode && (
+              <div className="round-chip">
+                <span>UTC ROUND</span>
+                <strong>{currentRound ? roundLabel(currentRound) : 'Unavailable'}</strong>
+              </div>
+            )}
+            <div className="timer">
+              <span>{practiceMode ? 'ACCOUNT' : tradingOpen ? 'CLOSES IN' : 'STATUS'}</span>
+              <strong>
+                {practiceMode
+                  ? 'SIMULATED'
+                  : tradingOpen
+                    ? countdown
+                    : (currentRound?.state ?? 'OFFLINE')}
+              </strong>
+            </div>
+            <NavLink to={practiceMode ? '/practice' : '/trade'} className="paper-account-link">
+              {practiceMode
+                ? 'Separate practice portfolio'
+                : account.data
+                  ? `${formatSol(account.data.paperSolLamports, 4).replace(/\sSOL$/, '')} Paper SOL`
+                  : 'Paper trading account'}{' '}
+              ↗
+            </NavLink>
+          </div>
+        )}
+        {!terminalMode && (
+          <div role="note" className="notice">
+            Paper trades are simulated. No trading deposit required.
+          </div>
+        )}
+        <OrderRecovery />
+        <div className="pf-night-workspace">
+          <aside className="pf-night-side" aria-label="Competition shortcuts">
+            <div className="pf-night-side-label">COMPETITIONS</div>
+            <NavLink
+              to="/pulse"
+              className={({ isActive }) =>
+                isActive ? 'pf-night-side-link active' : 'pf-night-side-link'
+              }
+            >
+              ◉ <span>Pulse</span>
+            </NavLink>
+            <NavLink
+              to="/hourly"
+              className={({ isActive }) =>
+                isActive ? 'pf-night-side-link active' : 'pf-night-side-link'
+              }
+            >
+              ◇ <span>Hourly</span>
+            </NavLink>
+            <NavLink
+              to="/daily"
+              className={({ isActive }) =>
+                isActive ? 'pf-night-side-link active' : 'pf-night-side-link'
+              }
+            >
+              ◈ <span>Daily</span>
+            </NavLink>
+            <NavLink
+              to="/trade"
+              className={({ isActive }) =>
+                isActive ? 'pf-night-side-link active' : 'pf-night-side-link'
+              }
+            >
+              ↗ <span>Competitions</span>
+            </NavLink>
+            <NavLink
+              to="/rewards"
+              className={({ isActive }) =>
+                isActive ? 'pf-night-side-link active' : 'pf-night-side-link'
+              }
+            >
+              ♢ <span>Rewards hub</span>
+            </NavLink>
+            <NavLink
+              to="/history"
+              className={({ isActive }) =>
+                isActive ? 'pf-night-side-link active' : 'pf-night-side-link'
+              }
+            >
+              ▤ <span>History</span>
+            </NavLink>
+            <div className="pf-night-side-foot">
+              <strong>Paperfund</strong>
+              <span>
+                Real markets.
+                <br />
+                Simulated trades.
+              </span>
+            </div>
+          </aside>
+          <div className="pf-night-page">
+            {['/hourly', '/daily'].includes(currentPath) && (
+              <nav className="pf-leaderboard-tabs" aria-label="Leaderboard interval">
+                <NavLink to="/hourly">Hourly</NavLink>
+                <NavLink to="/daily">Daily</NavLink>
+                <NavLink to="/history">Personal history</NavLink>
+              </nav>
+            )}
+            <Routes>
+              <Route path="/" element={<Navigate to="/pulse" replace />} />
+              <Route path="/pulse" element={<PulsePage />} />
+              <Route path="/practice" element={<PracticePage />} />
+              <Route
+                path="/trade"
+                element={
+                  <>
+                    <div className="notice">
+                      Competition mode follows actual UTC rounds.{' '}
+                      <NavLink to={'/practice' + window.location.search}>
+                        Open separate Practice Trading ↗
+                      </NavLink>
+                    </div>
+                    <TradePage
+                      user={auth.user}
+                      round={currentRound}
+                      account={account.data ?? null}
+                      accountLoading={account.isLoading}
+                      tradingOpen={tradingOpen}
+                    />
+                  </>
+                }
+              />
+              <Route path="/hourly" element={<HourlyPage user={auth.user} />} />
+              <Route path="/daily" element={<DailyPage user={auth.user} />} />
+              <Route path="/history" element={<HistoryPage user={auth.user} />} />
+              <Route path="/rewards" element={<RewardsPage user={auth.user} />} />
+              <Route path="/rules" element={<RulesPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/support" element={<SupportPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </div>
+        <footer className="app-footer">
+          <span>Paperfund · Trading competitions · Reward status on the Rewards page.</span>
+          <div>
+            <NavLink to="/rules">Rules</NavLink>
+            <NavLink to="/privacy">Privacy</NavLink>
+            <NavLink to="/support">Support</NavLink>
+          </div>
+        </footer>
+      </main>
+    </div>
+  );
+}
+
+function BrandMark({ className = '' }: { className?: string }) {
+  return <img className={`brand-mark ${className}`} src="/paperfund-mark-v2.svg" alt="" />;
+}
+
+function PrivacyPage() {
+  return (
+    <PageFrame>
+      <PageTitle
+        eyebrow="PRIVACY"
+        title="Paperfund privacy notice"
+        subtitle="Paperfund privacy notice. Retention periods and jurisdictional details remain under review."
+      />
+      <article className="policy-copy">
+        <p>
+          Privacy questions: <a href="mailto:support@paperfund.app">support@paperfund.app</a>.
+        </p>
+        <h2>What Paperfund processes</h2>
+        <p>
+          Paperfund processes your public Solana wallet address, an authentication challenge and its
+          explicit message signature, simulated competition entries and trades, balances, positions,
+          results, reward allocations, and payout records. Practice Trading maintains separate
+          simulated accounts and records. Token discovery and trading are available directly on the
+          website; no Paperfund extension is required.
+        </p>
+        <p>
+          Technical records may include timestamps, request route and status, network address, and
+          operational errors. Final retention periods and jurisdiction-specific privacy details
+          remain under review.
+        </p>
+        <h2>Browser storage and authentication</h2>
+        <p>
+          The website uses server-managed session cookies. Practice and competition sessions and
+          accounting are separate. Authentication proves control of an address by signing a message;
+          it is not a transaction.
+        </p>
+        <h2>What Paperfund does not access</h2>
+        <p>
+          Paperfund does not request seed phrases or private keys, sign transactions, submit swaps,
+          or gain custody of wallet funds. Paper SOL and simulated positions have no monetary value.
+        </p>
+        <h2>Why data is used and where it goes</h2>
+        <p>
+          Data is used to authenticate users, run and audit the competition, prevent duplicate or
+          abusive actions, support operations, and verify approved rewards. It may be processed by
+          infrastructure categories required to operate the service: application hosting,
+          PostgreSQL-compatible database hosting, Redis-compatible session storage, and Solana RPC
+          providers. Paperfund currently has no advertising, referral tracking, third-party
+          analytics, or sale of personal data, and does not share data for targeted advertising.
+        </p>
+        <h2>Questions and requests</h2>
+        <p>
+          Use the <NavLink to="/support">support page</NavLink> for help or privacy requests. The
+          legal entity, jurisdictional rights language, and final retention schedule remain under
+          review for the current service.
+        </p>
+      </article>
+    </PageFrame>
+  );
+}
+
+function SupportPage() {
+  return (
+    <PageFrame>
+      <PageTitle
+        eyebrow="SUPPORT"
+        title="Paperfund support"
+        subtitle="Help for the Paperfund web trading platform."
+      />
+      <article className="policy-copy">
+        <h2>Before reporting a problem</h2>
+        <p>
+          Connect your Solana wallet, enter the current UTC round, and search for a valid Solana
+          token mint on the trading page. Check that the Paperfund market route and API are
+          available before placing a paper order. Signing in requires only a wallet message
+          signature; paper trading never requires a deposit.
+        </p>
+        <h2>Report an issue</h2>
+        <p>
+          Open a report in the{' '}
+          <a href="https://github.com/Paperfunds/paperfund/issues">Paperfund issue tracker</a>.
+          Never include a seed phrase, private key, session token, or other secret. A monitored
+          support address is <a href="mailto:support@paperfund.app">support@paperfund.app</a>.
+          Competition access and reward eligibility are separate. Check Rewards for current funding
+          and payout status.
+        </p>
+      </article>
+    </PageFrame>
+  );
+}
+
+function RulesPage() {
+  return (
+    <PageFrame>
+      <PageTitle
+        eyebrow="COMPETITION RULES"
+        title="One hour. One account. The same rules for everyone."
+        subtitle="Paperfund is a simulated trading competition. Paper SOL and simulated positions have no monetary value."
+      />
+      <section className="rules-list" aria-label="Competition rules">
+        <Rule
+          number="01"
+          title="Fresh hourly account"
+          body="Each UTC hour starts with exactly 10 Paper SOL. Balances and positions never carry forward."
+        />
+        <Rule
+          number="02"
+          title="Position controls"
+          body="Each buy is capped at 20% of current portfolio equity. Five unique token entries are allowed per hour; selling does not free a slot, and rebuying the same token uses no additional slot."
+        />
+        <Rule
+          number="03"
+          title="Execution model"
+          body="Execution simulates protocol fees and reserve impact against verified market state. Previews are estimates; trades reprice atomically. The current API does not provide a configurable slippage limit."
+        />
+        <Rule
+          number="04"
+          title="Forced settlement"
+          body="When the hour closes, every open position is sold through the same execution engine before ranks finalize."
+        />
+        <Rule
+          number="05"
+          title="Hourly and daily ranks"
+          body="Hourly rewards use the top 10; daily rewards use the top 25. Competitive ranks preserve ties."
+        />
+        <Rule
+          number="06"
+          title="Reward funding"
+          body="The reward model uses verified creator fees. Real-SOL payouts require verified fee funding, accepted results and authorized execution. See Rewards for current status. Reviewed allocations are not paid rewards."
+        />
+      </section>
+      <div className="rules-callout">
+        All finalized hourly gains and losses count toward the UTC day of the round start. Ties
+        share funded ordinal allocations. No top-ups, deposits or balance carryovers. Reward
+        eligibility and regional restrictions may apply. Rewards are not guaranteed. Only an
+        approved payout allocation marked paid after on-chain verification represents a completed
+        reward.
+      </div>
+    </PageFrame>
+  );
+}
+
+function NavItem({ to, icon, children }: { to: string; icon?: string; children: ReactNode }) {
+  const location = useLocation();
+  const portfolio = new URLSearchParams(location.search).get('view') === 'portfolio';
+  const mismatch =
+    (to.startsWith('/practice') || to.startsWith('/trade')) &&
+    to.includes('view=portfolio') !== portfolio;
+  const active = location.pathname === to.split('?')[0] && !mismatch;
+  return (
+    <Link
+      to={to}
+      aria-current={active ? 'page' : undefined}
+      className={active ? 'nav-item active' : 'nav-item'}
+    >
+      {icon && <span>{icon}</span>}
+      {children}
+    </Link>
+  );
+}
+
+function WalletControl({ auth }: { auth: ReturnType<typeof useAuth> }) {
+  if (!auth.walletAddress && !auth.user)
+    return (
+      <div className="wallet-area">
+        <button
+          className="wallet-button"
+          onClick={() => auth.connect.mutate()}
+          disabled={auth.connect.isPending}
+        >
+          Connect Wallet
+        </button>
+        {auth.walletError && (
+          <span className="floating-error" role="alert">
+            {auth.walletError}
+          </span>
+        )}
+      </div>
+    );
+  if (!auth.user)
+    return (
+      <div className="wallet-area">
+        <span className="wallet-address">{shorten(auth.walletAddress!)}</span>
+        <button
+          className="button primary compact"
+          onClick={() => auth.signIn.mutate()}
+          disabled={auth.signIn.isPending}
+        >
+          {auth.signIn.isPending ? 'Signing…' : 'Sign In'}
+        </button>
+        {auth.walletError && <span className="floating-error">{auth.walletError}</span>}
+      </div>
+    );
+  return (
+    <div className="wallet-area">
+      <span className="wallet-address authenticated">
+        <span className="status-dot" />
+        {shorten(auth.user.walletAddress)}
+      </span>
+      <button
+        className="icon-button"
+        aria-label="Sign out"
+        title="Sign out"
+        onClick={() => auth.logout.mutate()}
+      >
+        ↪
+      </button>
+    </div>
+  );
+}
+
+function TradePage({
+  user,
+  round,
+  account,
+  accountLoading,
+  tradingOpen,
+}: {
+  user: User | null;
+  round: Round | null;
+  account: Account | null;
+  accountLoading: boolean;
+  tradingOpen: boolean;
+}) {
+  const client = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMint = mintFromSearch(searchParams.toString()) ?? '';
+  const [workspaceTab, setWorkspaceTab] = useState<MarketTab>('positions');
+  const [mobileView, setMobileView] = useState<'chart' | 'trade'>('chart');
+  const portfolioView = searchParams.get('view') === 'portfolio';
+  function selectMint(mint: string) {
+    const checked = validMint(mint);
+    if (checked) setSearchParams({ mint: checked }, { replace: true });
+  }
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const trades = useWebsiteTrades(user);
+  const chartFills = user
+    ? competitionExecutions(trades.data?.pages.flatMap((page) => page.items) ?? [], user.id)
+    : [];
+  const enter = useMutation({
+    mutationFn: api.enterRound,
+    onSuccess: async () => {
+      setNotice({
+        tone: 'success',
+        title: 'Round entered',
+        body: 'Your fresh 10 Paper SOL account is ready.',
+      });
+      await client.invalidateQueries({ queryKey: ['account'] });
+    },
+    onError: (error) =>
+      setNotice({ tone: 'error', title: 'Could not enter', body: errorMessage(error) }),
+  });
+  const previousResult = useQuery({
+    queryKey: ['latest-result', user?.id],
+    enabled: Boolean(user),
+    queryFn: async () => (await api.results()).items[0] ?? null,
+  });
+  const valuations = useQuery({
+    queryKey: ['positions', user?.id, account?.roundId],
+    enabled: Boolean(user && account && account.roundId === round?.id),
+    queryFn: api.positions,
+    refetchInterval: 12_000,
+    retry: false,
+  });
+
+  if (!user)
+    return (
+      <PageFrame>
+        <WelcomePanel />
+        <WebsiteMarketPicker selectedMint={selectedMint} onSelect={selectMint} />
+        <WebsiteMarketChart mint={selectedMint} />
+      </PageFrame>
+    );
+  if (accountLoading)
+    return (
+      <PageFrame>
+        <SkeletonPanel />
+      </PageFrame>
+    );
+  if (!round)
+    return (
+      <PageFrame>
+        <EmptyState
+          title="Round unavailable"
+          body="The lifecycle worker has not published a current round. Paper trading is unavailable until the service recovers. Token discovery and charts remain available."
+        />
+        <WebsiteMarketPicker selectedMint={selectedMint} onSelect={selectMint} />
+        <WebsiteMarketChart mint={selectedMint} />
+      </PageFrame>
+    );
+  if (account && account.roundId !== round.id)
+    return (
+      <PageFrame>
+        <NoticeCard
+          notice={{
+            tone: 'info',
+            title: 'New round available',
+            body: 'Your previous account is never carried forward. Enter the new round to receive a fresh 10 Paper SOL.',
+          }}
+        />
+        {previousResult.data && <RoundComplete result={previousResult.data} />}
+        <EnterRound round={round} pending={enter.isPending} onEnter={() => enter.mutate()} />
+        <WebsiteMarketPicker selectedMint={selectedMint} onSelect={selectMint} />
+        <WebsiteMarketChart mint={selectedMint} />
+      </PageFrame>
+    );
+  if (!account)
+    return (
+      <PageFrame>
+        {previousResult.data && <RoundComplete result={previousResult.data} />}
+        <EnterRound round={round} pending={enter.isPending} onEnter={() => enter.mutate()} />
+        {notice && <NoticeCard notice={notice} />}
+        <WebsiteMarketPicker selectedMint={selectedMint} onSelect={selectMint} />
+        <WebsiteMarketChart mint={selectedMint} />
+      </PageFrame>
+    );
+
+  return (
+    <PageFrame>
+      {notice && <NoticeCard notice={notice} />}
+      <AccountStrip account={account} round={round} valuations={valuations.data} />
+      <WebsiteMarketPicker selectedMint={selectedMint} onSelect={selectMint} />
+      <nav className="pf-mobile-workspace" aria-label="Token workspace">
+        <button aria-pressed={mobileView === 'chart'} onClick={() => setMobileView('chart')}>
+          Chart &amp; positions
+        </button>
+        <button aria-pressed={mobileView === 'trade'} onClick={() => setMobileView('trade')}>
+          PAPER BUY / SELL
+        </button>
+      </nav>
+      <div className="pf-terminal-grid" data-mobile-view={mobileView}>
+        <TokenMarketView
+          accountOnly={portfolioView}
+          mint={selectedMint}
+          tab={workspaceTab}
+          onTab={setWorkspaceTab}
+          fills={chartFills}
+          portfolio={
+            <section className="panel positions-panel pf-web-positions">
+              <PanelHead
+                eyebrow="PORTFOLIO"
+                title="Open positions"
+                count={(valuations.data?.positions ?? account.positions).length}
+              />
+              <Positions
+                positions={valuations.data?.positions ?? account.positions}
+                tradingOpen={tradingOpen}
+                onNotice={setNotice}
+              />
+            </section>
+          }
+          history={<TradeHistory user={user} />}
+        />
+        <aside className="panel order-panel pf-practice-order" aria-label="Paper order">
+          <PanelHead
+            eyebrow="EXECUTION"
+            title="Paper trade"
+            badge={tradingOpen ? 'MARKET OPEN' : 'CLOSED'}
+          />
+          <OrderTicket
+            account={account}
+            tradingOpen={tradingOpen}
+            onNotice={setNotice}
+            initialMint={selectedMint}
+            onSelectMint={selectMint}
+          />
+        </aside>
+      </div>
+    </PageFrame>
+  );
+}
+
+function WelcomePanel() {
+  return (
+    <section className="welcome">
+      <div className="eyebrow">HOURLY SOLANA COMPETITION</div>
+      <h1>
+        Trade the market.
+        <br />
+        <em>Risk nothing real.</em>
+      </h1>
+      <p>
+        Everything happens here in your browser: choose a Solana token, inspect its chart, place
+        paper BUY and SELL orders, and compete with 10 Paper SOL every UTC hour.
+      </p>
+      <div className="rule-grid">
+        <Rule number="01" title="10 Paper SOL" body="A fresh simulated balance every round." />
+        <Rule
+          number="02"
+          title="Real execution math"
+          body="Price impact and protocol fees included."
+        />
+        <Rule number="03" title="Hourly reset" body="Every position closes automatically." />
+      </div>
+      <span className="simulation-label">
+        No deposits · No transaction signing · No real trades
+      </span>
+    </section>
+  );
+}
+
+function EnterRound({
+  round,
+  pending,
+  onEnter,
+}: {
+  round: Round;
+  pending: boolean;
+  onEnter(): void;
+}) {
+  return (
+    <section className="enter-card">
+      <div>
+        <div className="eyebrow">ROUND {roundLabel(round)}</div>
+        <h1>Your next run starts here.</h1>
+        <p>Enter with a clean slate. Prior balances and positions never carry over.</p>
+        <ul>
+          <li>Start with 10 Paper SOL</li>
+          <li>Trade up to 5 unique tokens</li>
+          <li>Each new buy is capped at 20% of equity</li>
+          <li>Positions close automatically at the hourly end</li>
+        </ul>
+      </div>
+      <button
+        className="button primary enter-button"
+        onClick={onEnter}
+        disabled={pending || round.state !== 'OPEN'}
+      >
+        {pending ? 'Entering…' : 'Enter Round'}
+        <span>→</span>
+      </button>
+    </section>
+  );
+}
+
+function AccountStrip({
+  account,
+  round,
+  valuations,
+}: {
+  account: Account;
+  round: Round;
+  valuations?: PositionValuationResponse | undefined;
+}) {
+  return (
+    <section className="account-strip">
+      <Metric label="Available cash" value={formatSol(account.paperSolLamports, 9)} accent />
+      <Metric
+        label="Portfolio equity"
+        value={
+          valuations?.portfolioEquityLamports
+            ? formatSol(valuations.portfolioEquityLamports, 9)
+            : 'Unavailable'
+        }
+        note="Executable exit value"
+      />
+      <Metric
+        label="Live Paper P&L"
+        value={
+          valuations?.livePnlLamports ? signedSol(valuations.livePnlLamports, 9) : 'Unavailable'
+        }
+        className={pnlClass(valuations?.livePnlLamports ?? '0')}
+        note="Provisional until round close"
+      />
+      <Metric
+        label="Token slots"
+        value={`${account.slotsUsed} / ${account.slotLimit}`}
+        note={`${account.slotLimit - account.slotsUsed} remaining`}
+      />
+      <Metric label="Round state" value={round.state} />
+    </section>
+  );
+}
+
+function OrderTicket({
+  account,
+  tradingOpen,
+  onNotice,
+  initialMint,
+  onSelectMint,
+}: {
+  account: Account;
+  tradingOpen: boolean;
+  onNotice(notice: Notice): void;
+  initialMint: string;
+  onSelectMint(mint: string): void;
+}) {
+  const client = useQueryClient();
+  const unresolved = useOrderPending();
+  const [mint, setMint] = useState(initialMint);
+  const [checkedMint, setCheckedMint] = useState(initialMint);
+  const [mintError, setMintError] = useState('');
+  const [ticketParams] = useSearchParams();
+  const [amount, setAmount] = useState(ticketParams.get('amount') ?? '');
+  const [slippage, setSlippage] = useState(100);
+  useEffect(() => {
+    setMint(initialMint);
+    setCheckedMint(initialMint);
+    setMintError('');
+    setAmount(ticketParams.get('amount') ?? '');
+  }, [initialMint, ticketParams]);
+  const market = useQuery({
+    queryKey: ['market', checkedMint],
+    enabled: checkedMint.length > 0,
+    queryFn: () => api.market(checkedMint),
+    retry: false,
+    refetchInterval: 12000,
+  });
+  const preflight = useQuery({
+    queryKey: ['buy-preflight', checkedMint, account.roundId],
+    enabled: Boolean(checkedMint),
+    queryFn: () => api.buyPreflight(checkedMint),
+    refetchInterval: 12_000,
+    retry: false,
+  });
+  const buy = useMutation({
+    mutationFn: () => api.buy(checkedMint, amount, requestKey(), undefined, preview.data?.key === checkedMint + ':' + amount ? preview.data.quote : undefined, slippage),
+    onSuccess: async (result) => {
+      onNotice({ tone: 'success', title: 'BUY FILLED', body: <FillSummary result={result} /> });
+      setAmount('');
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['account'] }),
+        client.invalidateQueries({ queryKey: ['positions'] }),
+        client.invalidateQueries({ queryKey: ['buy-preflight'] }),
+        client.invalidateQueries({ queryKey: ['trades'] }),
+      ]);
+    },
+    onError: (error) =>
+      onNotice({ tone: 'error', title: 'Buy rejected', body: errorMessage(error) }),
+  });
+  const exactAmount = solTextToLamports(amount);
+  const preview = useMutation({
+    mutationFn: async () => {
+      if (exactAmount === null || exactAmount <= 0n)
+        throw Error('Enter a positive Paper SOL amount.');
+      return {
+        key: checkedMint + ':' + amount,
+        quote: await api.quote(checkedMint, 'BUY', exactAmount.toString(), slippage),
+      };
+    },
+  });
+  const exactMax =
+    !preflight.error && preflight.data?.maxBuyLamports
+      ? BigInt(preflight.data.maxBuyLamports)
+      : null;
+  const exceedsMax = exactAmount !== null && exactMax !== null && exactAmount > exactMax;
+  const canBuy =
+    tradingOpen &&
+    mint.trim() === checkedMint &&
+    initialMint === checkedMint &&
+    !preflight.error &&
+    preflight.data &&
+    preflight.data.accountId === account.accountId &&
+    preflight.data.roundId === account.roundId &&
+    (preflight.data.equityValuationStatus
+      ? preflight.data.equityValuationStatus !== 'UNAVAILABLE' && !preflight.data.blockingReason
+      : preflight.data.valuationStatus === 'AVAILABLE') &&
+    preflight.data.marketSupported &&
+    preflight.data.slotAvailable &&
+    exactMax !== null &&
+    exactAmount !== null &&
+    exactAmount > 0n &&
+    !exceedsMax &&
+    !buy.isPending &&
+    !unresolved;
+  function inspect(event: FormEvent) {
+    event.preventDefault();
+    const accepted = validMint(mint);
+    if (!accepted) {
+      setMintError('Enter a valid Solana token mint.');
+      setCheckedMint('');
+      return;
+    }
+    setMintError('');
+    setCheckedMint(accepted);
+    onSelectMint(accepted);
+  }
+  return (
+    <div className="ticket">
+      <form onSubmit={inspect}>
+        <label htmlFor="mint">Token mint</label>
+        <div className="input-row">
+          <input
+            id="mint"
+            value={mint}
+            onChange={(event) => {
+              setMint(event.target.value);
+              setMintError('');
+              if (event.target.value.trim() !== checkedMint) setCheckedMint('');
+            }}
+            placeholder="Paste Solana mint address"
+            autoComplete="off"
+          />
+          <button className="button secondary" disabled={!mint.trim() || market.isFetching}>
+            Inspect
+          </button>
+        </div>
+      </form>
+      {mintError && (
+        <div className="market-status error" role="alert">
+          {mintError}
+        </div>
+      )}
+      {market.isFetching && !market.data && (
+        <div className="market-status">Loading authoritative market…</div>
+      )}
+      {market.error && <div className="market-status error">{errorMessage(market.error)}</div>}
+      {market.data && !market.error && <MarketCard market={market.data} />}
+      <div className="pf-ticket-refresh" role="status">
+        {preflight.isFetching
+          ? preflight.data
+            ? 'Refreshing advisory limits…'
+            : 'Calculating exact maximum…'
+          : preflight.error
+            ? 'Limits unavailable · retrying on the next update'
+            : preflight.data
+              ? 'Advisory limits loaded · server rechecks every fill'
+              : 'Inspect a token to load trading limits'}
+      </div>
+      {buyPreflightMessage(preflight.data) && (
+        <div className="market-status error">{buyPreflightMessage(preflight.data)}</div>
+      )}
+      {preflight.error && (
+        <div className="market-status error">{errorMessage(preflight.error)}</div>
+      )}
+      <div className="divider" />
+      <label htmlFor="buy-amount">Paper SOL amount</label>
+      <div className="amount-input">
+        <input
+          id="buy-amount"
+          inputMode="decimal"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+          placeholder="0.00"
+        />
+        <span>SOL</span>
+      </div>
+      <TradePresets disabled={!tradingOpen || unresolved || buy.isPending} onSelect={setAmount} />
+      <div className="quick-row">
+        <button
+          disabled={exactMax === null}
+          onClick={() => setAmount(lamportsToSolInput(exactMax! / 4n))}
+        >
+          25%
+        </button>
+        <button
+          disabled={exactMax === null}
+          onClick={() => setAmount(lamportsToSolInput(exactMax! / 2n))}
+        >
+          50%
+        </button>
+        <button
+          disabled={exactMax === null}
+          onClick={() => setAmount(lamportsToSolInput(exactMax!))}
+        >
+          MAX
+        </button>
+      </div>
+      {exceedsMax && <div className="market-status error">Exceeds 20% maximum for this order.</div>}
+      <div className="ticket-review">
+        <span>Available cash</span>
+        <strong>{formatSol(preflight.data?.cashLamports ?? account.paperSolLamports, 9)}</strong>
+        <span>Portfolio equity</span>
+        <strong>
+          {!preflight.error && preflight.data?.portfolioEquityLamports
+            ? formatSol(preflight.data.portfolioEquityLamports, 9)
+            : 'Unavailable'}
+        </strong>
+        <span>Maximum allowed</span>
+        <strong>
+          {!preflight.error && preflight.data?.maxBuyLamports
+            ? formatSol(preflight.data.maxBuyLamports, 9)
+            : 'Unavailable'}
+        </strong>
+        <span>Requested</span>
+        <strong>{exactAmount && exactAmount > 0n ? formatSol(exactAmount, 9) : '—'}</strong>
+        <span>Current venue</span>
+        <strong>{venueName(preflight.data?.protocol ?? market.data?.executionProtocol)}</strong>
+        <span>Slots</span>
+        <strong>
+          {preflight.data ? `${preflight.data.slotsUsed} / ${preflight.data.slotLimit}` : '—'}
+        </strong>
+        <span>Slot impact</span>
+        <strong>
+          {preflight.data
+            ? preflight.data.targetAlreadyConsumesSlot
+              ? 'Existing slot'
+              : preflight.data.slotAvailable
+                ? 'Uses new slot'
+                : 'No slots available'
+            : '—'}
+        </strong>
+      </div>
+      <SlippageControl value={slippage} onChange={(v) => { setSlippage(v); preview.reset(); }} />
+      <button
+        className="button secondary"
+        disabled={!canBuy || preview.isPending}
+        onClick={() => preview.mutate()}
+      >
+        {preview.isPending ? 'Reading execution bank…' : 'Preview BUY'}
+      </button>
+      {preview.error && <p role="alert">{errorMessage(preview.error)}</p>}
+      {preview.data?.key === checkedMint + ':' + amount && (
+        <ExecutionPreview quote={preview.data.quote} />
+      )}
+      <button className="button buy-button" onClick={() => buy.mutate()} disabled={!canBuy}>
+        {buy.isPending ? 'Submitting…' : tradingOpen ? 'Buy with Paper SOL' : 'Round closed'}
+      </button>
+      {unresolved && (
+        <p role="status">Recover the unresolved order above before placing another trade.</p>
+      )}
+      <p className="fine-print">
+        This advisory snapshot uses executable exit values. The server revalues the portfolio
+        transactionally before every fill, so the final limit may move.
+      </p>
+    </div>
+  );
+}
+
+function MarketCard({ market }: { market: MarketSupport }) {
+  return (
+    <div className={`market-card ${market.supported ? 'supported' : 'unsupported'}`}>
+      <div>
+        <span className="status-dot" />
+        <strong>{market.supported ? 'Supported market' : 'Unsupported market'}</strong>
+        <small>
+          {market.supported ? 'Verified by Paperfund execution preflight' : market.reason}
+        </small>
+      </div>
+      {market.supported && (
+        <div className="market-meta">
+          <span>{venueName(market.executionProtocol)}</span>
+          <span>{market.tokenDecimals} decimals</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Positions({
+  positions,
+  tradingOpen,
+  onNotice,
+}: {
+  positions: Position[];
+  tradingOpen: boolean;
+  onNotice(notice: Notice): void;
+}) {
+  if (!positions.length)
+    return (
+      <EmptyState
+        title="No active positions"
+        body="Inspect a supported mint and place a paper buy to open your first position."
+        compact
+      />
+    );
+  return (
+    <div className="position-list">
+      {positions.map((position) => (
+        <PositionRow
+          key={position.id}
+          position={position}
+          tradingOpen={tradingOpen}
+          onNotice={onNotice}
+        />
+      ))}
+    </div>
+  );
+}
+
+function PositionRow({
+  position,
+  tradingOpen,
+  onNotice,
+}: {
+  position: Position;
+  tradingOpen: boolean;
+  onNotice(notice: Notice): void;
+}) {
+  const client = useQueryClient();
+  const unresolved = useOrderPending();
+  const [quantity, setQuantity] = useState('');
+  const [slippage, setSlippage] = useState(100);
+  const sell = useMutation({
+    mutationFn: (requested: string) => api.sell(position.mint, requested, requestKey(), preview.data?.key === (requested === 'ALL' ? 'ALL' : requested) ? preview.data.quote : undefined, slippage),
+    onSuccess: async (result) => {
+      onNotice({
+        tone: 'success',
+        title: 'SELL FILLED',
+        body: <SellSummary result={result} decimals={position.tokenDecimals} />,
+      });
+      setQuantity('');
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['account'] }),
+        client.invalidateQueries({ queryKey: ['positions'] }),
+        client.invalidateQueries({ queryKey: ['buy-preflight'] }),
+        client.invalidateQueries({ queryKey: ['trades'] }),
+      ]);
+    },
+    onError: (error) =>
+      onNotice({ tone: 'error', title: 'Sell rejected', body: errorMessage(error) }),
+  });
+  const valid =
+    /^[1-9]\d*$/.test(quantity) && BigInt(quantity) <= BigInt(position.tokenQuantityBaseUnits);
+  const preview = useMutation({
+    mutationFn: async () => ({
+      key: quantity || 'ALL',
+      quote: await api.quote(position.mint, 'SELL', quantity || position.tokenQuantityBaseUnits, slippage),
+    }),
+  });
+  return (
+    <article className="position">
+      <div className="position-top">
+        <div className="token-avatar">{position.mint.slice(0, 2).toUpperCase()}</div>
+        <div>
+          <strong>{shorten(position.mint, 7)}</strong>
+          <small>
+            {venueName(position.originProtocol)} entry
+            {position.valuation.status === 'AVAILABLE'
+              ? ` · ${venueName(position.valuation.currentProtocol)} current`
+              : ''}
+          </small>
+        </div>
+        <div className="position-quantity">
+          <span>QUANTITY</span>
+          <strong>{formatUnits(position.tokenQuantityBaseUnits, position.tokenDecimals, 6)}</strong>
+        </div>
+      </div>
+      <div className="position-stats">
+        <div>
+          <span>Cost basis</span>
+          <strong>{formatSol(position.costBasisPaperSolLamports, 9)}</strong>
+        </div>
+        <div>
+          <span>Executable value</span>
+          <strong>
+            {position.valuation.status === 'AVAILABLE'
+              ? formatSol(position.valuation.executablePaperSolLamports, 9)
+              : 'Valuation unavailable'}
+          </strong>
+        </div>
+        <div>
+          <span>Unrealized P&amp;L</span>
+          <strong
+            className={
+              position.valuation.status === 'AVAILABLE'
+                ? pnlClass(position.valuation.unrealizedPnlLamports)
+                : undefined
+            }
+          >
+            {position.valuation.status === 'AVAILABLE'
+              ? signedSol(position.valuation.unrealizedPnlLamports, 9)
+              : position.valuation.status === 'UNSUPPORTED_ROUTE'
+                ? 'Route unavailable'
+                : 'Valuation unavailable'}
+          </strong>
+        </div>
+      </div>
+      <label className="sr-only" htmlFor={`sell-${position.id}`}>
+        Token base units to sell
+      </label>
+      <input
+        id={`sell-${position.id}`}
+        className="sell-input"
+        inputMode="numeric"
+        placeholder="Exact token base units"
+        value={quantity}
+        onChange={(event) => setQuantity(event.target.value)}
+      />
+      <SlippageControl value={slippage} onChange={(v) => { setSlippage(v); preview.reset(); }} />
+      <div className="sell-actions">
+        <div className="quick-row">
+          {([10, 25, 50, 75, 100] as const).map((percent) => (
+            <button
+              key={percent}
+              disabled={
+                unresolved ||
+                sell.isPending ||
+                position.sellPreflight?.percentages[`${percent}` as '25' | '50' | '75']
+                  ?.executable === false
+              }
+              onClick={() =>
+                setQuantity(percentageQuantity(position.tokenQuantityBaseUnits, percent))
+              }
+            >
+              {percent}%
+            </button>
+          ))}
+        </div>
+        <button
+          className="button secondary"
+          disabled={!tradingOpen || !valid || sell.isPending || unresolved}
+          onClick={() => sell.mutate(quantity)}
+        >
+          Sell
+        </button>
+        <button
+          className="button danger"
+          disabled={
+            !tradingOpen ||
+            sell.isPending ||
+            unresolved ||
+            position.sellPreflight?.full.executable === false
+          }
+          onClick={() => sell.mutate('ALL')}
+        >
+          Sell All
+        </button>
+      </div>
+      <button
+        className="button secondary"
+        disabled={!tradingOpen || unresolved || preview.isPending || (!!quantity && !valid)}
+        onClick={() => preview.mutate()}
+      >
+        {preview.isPending ? 'Reading executable exit…' : 'Preview SELL'}
+      </button>
+      {preview.error && <p role="alert">{errorMessage(preview.error)}</p>}
+      {preview.data?.key === (quantity || 'ALL') && <ExecutionPreview quote={preview.data.quote} />}
+      {position.sellPreflight && position.sellPreflight.status !== 'FULL' && (
+        <div className="market-status error">
+          {position.sellPreflight.status === 'NO_EXECUTABLE_LIQUIDITY' ? (
+            'Insufficient executable liquidity: no positive exit is currently possible.'
+          ) : (
+            <>
+              Liquidity-limited: full exit unavailable. Max executable exit:{' '}
+              {formatUnits(
+                position.sellPreflight.maxExecutableQuantityBaseUnits,
+                position.tokenDecimals,
+                position.tokenDecimals,
+              )}{' '}
+              tokens for {formatSol(position.sellPreflight.maxExecutableOutputLamports, 9)}.{' '}
+              Executable-portion P&amp;L:{' '}
+              {formatSol(position.sellPreflight.executablePortionPnlLamports!, 9)}. Not
+              full-position P&amp;L.
+              <button
+                className="button secondary"
+                disabled={!tradingOpen || sell.isPending}
+                onClick={() => sell.mutate(position.sellPreflight!.maxExecutableQuantityBaseUnits)}
+              >
+                Sell max executable
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      {!position.sellPreflight && position.valuation.status !== 'AVAILABLE' && (
+        <div className="market-status error">
+          Exit valuation unavailable: {position.valuation.reason}. Retrying…
+        </div>
+      )}
+    </article>
+  );
+}
+
+function TradeHistory({ user }: { user: User }) {
+  const trades = useWebsiteTrades(user);
+  const items = trades.data?.pages.flatMap((page) => page.items) ?? [];
+  return (
+    <section className="panel activity-panel">
+      <PanelHead eyebrow="LEDGER" title="Trade activity" count={items.length} />
+      {trades.error ? (
+        <NoticeCard
+          notice={{
+            tone: 'error',
+            title: 'Trade history unavailable',
+            body: errorMessage(trades.error),
+          }}
+        />
+      ) : trades.isLoading ? (
+        <SkeletonRows />
+      ) : items.length ? (
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Mint</th>
+                <th>Venue</th>
+                <th>Input</th>
+                <th>Output</th>
+                <th>Fee</th>
+                <th>Realized P&L</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((trade) => (
+                <TradeRow key={trade.id} trade={trade} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <EmptyState
+          title="No trades yet"
+          body="Completed buys, sells, and hourly auto-closes will appear here."
+          compact
+        />
+      )}
+      {trades.hasNextPage && (
+        <button
+          className="button secondary load-more"
+          onClick={() => trades.fetchNextPage()}
+          disabled={trades.isFetchingNextPage}
+        >
+          Load more
+        </button>
+      )}
+    </section>
+  );
+}
+
+function TradeRow({ trade }: { trade: Trade }) {
+  const forced = trade.execution_context === 'FORCED_HOURLY_SETTLEMENT';
+  return (
+    <tr>
+      <td title={new Date(trade.executed_at).toUTCString()}>
+        {new Date(trade.executed_at).toISOString().slice(0, 10)} · {utcTime(trade.executed_at)} UTC
+      </td>
+      <td>
+        <span className={`trade-side ${trade.side.toLowerCase()}`}>
+          {forced ? 'AUTO CLOSE' : trade.side}
+        </span>
+      </td>
+      <td className="mono">{shorten(trade.mint_address)}</td>
+      <td>{venueName(trade.protocol_id)}</td>
+      <td>
+        {trade.side === 'BUY'
+          ? formatSol(trade.actual_input_lamports ?? trade.quote_lamports, 9)
+          : `${trade.base_quantity} base units`}
+      </td>
+      <td>
+        {trade.side === 'SELL'
+          ? formatSol(trade.actual_output_lamports ?? trade.quote_lamports, 9)
+          : `${trade.base_quantity} base units`}
+      </td>
+      <td>{formatSol(trade.fee_lamports, 9)}</td>
+      <td className={pnlClass(trade.realized_pnl_lamports)}>
+        {trade.side === 'SELL' ? signedSol(trade.realized_pnl_lamports, 9) : '—'}
+      </td>
+    </tr>
+  );
+}
+
+function LiveHourlyBoard({ user }: { user: User | null }) {
+  const board = useQuery({
+    queryKey: ['hourly-live', undefined],
+    queryFn: () => api.liveHourly(),
+    refetchInterval: 4_000,
+    retry: false,
+  });
+  const data = board.error ? undefined : board.data;
+  return (
+    <section className="pf-live-leaderboard" aria-label="Live hourly leaderboard">
+      <PageTitle
+        eyebrow={
+          board.error || data?.status === 'UNAVAILABLE'
+            ? 'UNAVAILABLE'
+            : data?.phase === 'LIVE'
+              ? 'LIVE / PROVISIONAL'
+              : (data?.phase ?? 'AWAITING BACKEND')
+        }
+        title="Current hourly standings"
+        subtitle="Executable equity minus starting Paper SOL. Provisional scores never allocate rewards; only settled final results count."
+      />
+      {data && (
+        <p>
+          {new Date(data.round.starts_at).toUTCString()} ·{' '}
+          {data.phase === 'LIVE' ? 'Refreshes every 4 seconds' : data.phase}
+        </p>
+      )}
+      {board.error || data?.status === 'UNAVAILABLE' ? (
+        <EmptyState
+          title="Live ranking temporarily unavailable"
+          body={
+            board.error
+              ? errorMessage(board.error)
+              : `Ranks withheld: ${data?.reason ?? 'required valuations unavailable'}. No partial ranks are shown.`
+          }
+        />
+      ) : board.isLoading ? (
+        <div className="pf-board-skeleton" role="status">
+          <span>Loading authoritative standings…</span>
+          {[0, 1, 2, 3].map((row) => (
+            <i key={row} aria-hidden="true" />
+          ))}
+        </div>
+      ) : data?.phase === 'SETTLING' ? (
+        <EmptyState
+          title="Settling"
+          body="Final positions are being force-settled. Rankings are not final yet."
+        />
+      ) : data?.phase === 'FINALIZED' ? (
+        <Leaderboard entries={data.entries} kind="hourly" user={user} />
+      ) : data?.entries.length ? (
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Provisional rank</th>
+                <th>Trader</th>
+                <th>Executable equity · Paper SOL</th>
+                <th>Provisional P&amp;L · Paper SOL</th>
+                <th>Slots used</th>
+                <th>Open positions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.entries.map((entry) => (
+                <tr key={entry.user_id} className={entry.user_id === user?.id ? 'user-row' : ''}>
+                  <td>
+                    {entry.rank}
+                    {entry.tied ? ` (tie ×${entry.tieGroupSize})` : ''}
+                  </td>
+                  <td>
+                    <span title={entry.wallet_address}>{shorten(entry.wallet_address, 7)}</span>
+                    {entry.user_id === user?.id && <span className="you">YOU</span>}
+                  </td>
+                  <td>{formatSol(entry.equityLamports!, 9).replace(/\sSOL$/, '')}</td>
+                  <td className={pnlClass(entry.score)}>
+                    {signedSol(entry.score, 9).replace(/\sSOL$/, '')}
+                  </td>
+                  <td>{entry.slotsUsed}</td>
+                  <td>{entry.openPositions}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <EmptyState
+          title={
+            board.isLoading
+              ? 'Loading live standings…'
+              : data
+                ? 'No participants yet'
+                : 'No current standings supplied'
+          }
+          body={
+            data
+              ? 'Enter the current hour to appear in provisional standings.'
+              : 'The authoritative backend has not supplied a current round. Practice activity is not substituted.'
+          }
+        />
+      )}
+      {data && data.phase !== 'LIVE' && (
+        <button
+          className="button secondary"
+          onClick={() => {
+            void board.refetch();
+          }}
+        >
+          View current round
+        </button>
+      )}
+    </section>
+  );
+}
+
+function HourlyPage({ user }: { user: User | null }) {
+  const board = useQuery({
+    queryKey: ['hourly'],
+    queryFn: api.hourly,
+    refetchInterval: 8_000,
+    retry: false,
+  });
+  return (
+    <PageFrame>
+      <CompetitionSummary kind="hourly" user={user} />
+      <LiveHourlyBoard user={user} />
+      <PageTitle
+        eyebrow="FINALIZED RESULTS"
+        title="Hourly leaderboard"
+        subtitle="Final ranks use settled Paper SOL after every position has been closed through the execution engine."
+      />
+      {board.isLoading ? (
+        <SkeletonPanel />
+      ) : board.error ? (
+        <EmptyState title="Hourly leaderboard unavailable" body={errorMessage(board.error)} />
+      ) : board.data ? (
+        <>
+          <div className="board-context">
+            <span>
+              {new Date(board.data.round.starts_at).toUTCString()} ·{' '}
+              {roundRange(board.data.round.starts_at, board.data.round.ends_at_exclusive)}
+            </span>
+            <span className="badge">{board.data.round.state}</span>
+          </div>
+          <Leaderboard entries={board.data.entries} kind="hourly" user={user} />
+          <RecordedDistribution kind="hourly" id={board.data.round.id} />
+        </>
+      ) : (
+        <EmptyState
+          title="No finalized rounds yet"
+          body="The first leaderboard will appear after a round completes and settles."
+        />
+      )}
+    </PageFrame>
+  );
+}
+
+function DailyPage({ user }: { user: User | null }) {
+  const [params, setParams] = useSearchParams();
+  const selectedDate = params.get('date') ?? '';
+  const board = useQuery({
+    queryKey: selectedDate ? ['daily', selectedDate] : ['daily'],
+    queryFn: () => api.daily(selectedDate || undefined),
+    refetchInterval: 8_000,
+  });
+  const rewards = useQuery({
+    queryKey: ['reward-allocations', user?.id],
+    queryFn: api.rewardAllocations,
+    enabled: Boolean(user),
+  });
+  const latestDailyReward = rewards.data?.find(
+    ({ competitionType, dailyCompetitionId }) =>
+      competitionType === 'DAILY' && dailyCompetitionId === board.data?.dailyCompetition.id,
+  );
+  return (
+    <PageFrame>
+      {!selectedDate && <CompetitionSummary kind="daily" user={user} />}
+      <PageTitle
+        eyebrow="UTC CHAMPIONSHIP"
+        title="Daily leaderboard"
+        subtitle="Every finalized hourly gain and loss contributes to the current UTC day's cumulative score."
+      />
+      <div className="board-context">
+        <label>
+          UTC results date{' '}
+          <input
+            aria-label="UTC results date"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => {
+              const next = new URLSearchParams(params);
+              if (e.target.value) next.set('date', e.target.value);
+              else next.delete('date');
+              setParams(next);
+            }}
+          />
+        </label>
+        {selectedDate && (
+          <>
+            <span className="badge">RECORDED RESULTS · {selectedDate}</span>
+            <button className="button secondary" onClick={() => setParams({})}>
+              Current UTC day
+            </button>
+          </>
+        )}
+      </div>
+      <p role="note">
+        Daily scoring uses finalized hourly results. Daily SOL payouts remain held until daily
+        settlement is independently qualified. Hourly reward activation does not activate daily
+        payouts.
+      </p>
+      {board.error && (
+        <NoticeCard
+          notice={{
+            tone: 'error',
+            title: 'Daily standings unavailable',
+            body: errorMessage(board.error),
+          }}
+        />
+      )}
+      {!board.error && board.data && (
+        <div className="board-context">
+          <span>
+            {new Date(board.data.dailyCompetition.startsAt).toUTCString()} —{' '}
+            {new Date(board.data.dailyCompetition.endsAtExclusive).toUTCString()}
+          </span>
+          <span className="badge">{board.data.dailyCompetition.state} · UTC day</span>
+        </div>
+      )}
+      {!board.error && latestDailyReward?.won && (
+        <section className="round-complete">
+          <div>
+            <span className="eyebrow">DAILY REWARD ALLOCATION</span>
+            <strong>Rank #{latestDailyReward.competitiveRank}</strong>
+          </div>
+          <Metric
+            label="Reward allocation"
+            value={`${formatSol(latestDailyReward.rewardAllocationLamports).replace(/\sSOL$/, ' ' + competitionRewardUnit)} · ${
+              isolatedCompetitionTest
+                ? 'TEST allocation · UNPAID'
+                : latestDailyReward.status === 'PAID'
+                  ? 'Paid'
+                  : latestDailyReward.status === 'PROCESSING'
+                    ? 'Processing'
+                    : latestDailyReward.status === 'APPROVED'
+                      ? 'Approved'
+                      : latestDailyReward.status === 'FAILED_REVIEW'
+                        ? 'Needs review'
+                        : 'Pending'
+            }`}
+          />
+        </section>
+      )}
+      {board.isLoading ? (
+        <SkeletonPanel />
+      ) : board.error ? null : board.data?.entries.length ? (
+        <Leaderboard entries={board.data.entries} kind="daily" user={user} />
+      ) : (
+        <EmptyState
+          title="No Daily Championship results yet"
+          body="Complete an hourly round to post a score for the current UTC day."
+        />
+      )}
+      {selectedDate && board.data && (
+        <RecordedDistribution kind="daily" id={board.data.dailyCompetition.id} />
+      )}
+    </PageFrame>
+  );
+}
+
+function Leaderboard({
+  entries,
+  kind,
+  user,
+}: {
+  entries: LeaderboardEntry[];
+  kind: 'hourly' | 'daily';
+  user?: User | null;
+}) {
+  return (
+    <section className="panel leaderboard">
+      <div className="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Trader</th>
+              {kind === 'hourly' ? (
+                <>
+                  <th>Final Paper SOL</th>
+                  <th>Hourly P&L</th>
+                </>
+              ) : (
+                <>
+                  <th>Cumulative P&L</th>
+                  <th>Rounds</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((entry) => (
+              <tr key={entry.user_id} className={entry.user_id === user?.id ? 'user-row' : ''}>
+                <td>
+                  <span className={`rank rank-${entry.rank}`}>{entry.rank}</span>
+                  {entry.tied && <small className="tie">T{entry.tieGroupSize}</small>}
+                </td>
+                <td className="mono">
+                  <span title={entry.wallet_address}>{shorten(entry.wallet_address, 7)}</span>
+                  {entry.user_id === user?.id && <span className="you">YOU</span>}
+                </td>
+                {kind === 'hourly' ? (
+                  <>
+                    <td>{formatSol(entry.final_settled_balance_lamports!, 9)}</td>
+                    <td className={pnlClass(entry.score)}>{signedSol(entry.score, 9)}</td>
+                  </>
+                ) : (
+                  <>
+                    <td className={pnlClass(entry.score)}>{signedSol(entry.score, 9)}</td>
+                    <td>{entry.completed_hourly_round_count}</td>
+                  </>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="table-note">
+        Ties keep their competition rank and share the combined funded ordinal allocation.
+      </p>
+    </section>
+  );
+}
+
+function HistoryPage({ user }: { user: User | null }) {
+  const results = useInfiniteQuery({
+    queryKey: ['results', user?.id],
+    enabled: Boolean(user),
+    queryFn: ({ pageParam }) => api.results(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+  const items = results.data?.pages.flatMap((page) => page.items) ?? [];
+  return (
+    <PageFrame>
+      <PageTitle
+        eyebrow="YOUR RECORD"
+        title="Trade history"
+        subtitle="Your recorded paper buys, sells and forced settlements, followed by finalized hourly results."
+      />
+      {user && <TradeHistory user={user} />}
+      <h2 className="history-results-title">Finalized hourly results</h2>
+      {!user ? (
+        <EmptyState
+          title="Sign in to view history"
+          body="Connect your wallet and sign in to load finalized personal results."
+        />
+      ) : results.error ? (
+        <NoticeCard
+          notice={{
+            tone: 'error',
+            title: 'Round history unavailable',
+            body: errorMessage(results.error),
+          }}
+        />
+      ) : results.isLoading ? (
+        <SkeletonPanel />
+      ) : items.length ? (
+        <section className="history-grid">
+          {items.map((result) => (
+            <ResultCard key={result.id} result={result} />
+          ))}
+        </section>
+      ) : (
+        <EmptyState
+          title="No finalized rounds yet"
+          body="Your settled hourly results will appear here."
+        />
+      )}
+      {results.hasNextPage && (
+        <button className="button secondary load-more" onClick={() => results.fetchNextPage()}>
+          Load more
+        </button>
+      )}
+    </PageFrame>
+  );
+}
+
+function RoundComplete({ result }: { result: HourlyResult }) {
+  return (
+    <section className="round-complete">
+      <div>
+        <span className="eyebrow">ROUND COMPLETE</span>
+        <strong>{roundRange(result.starts_at, result.ends_at_exclusive)}</strong>
+      </div>
+      <Metric label="Final Paper SOL" value={formatSol(result.final_settled_balance_lamports)} />
+      <Metric
+        label="Hourly P&L"
+        value={signedSol(result.hourly_pnl_lamports)}
+        className={pnlClass(result.hourly_pnl_lamports)}
+      />
+      {result.reward_allocation_lamports !== null &&
+        result.reward_allocation_lamports !== undefined && (
+          <Metric
+            label={`Reward allocation · Rank #${result.reward_rank}`}
+            value={`${formatSol(result.reward_allocation_lamports, 9).replace(/SOL$/, competitionRewardUnit)} · ${isolatedCompetitionTest ? 'TEST · unpaid' : 'Pending'}`}
+          />
+        )}
+    </section>
+  );
+}
+function ResultCard({ result }: { result: HourlyResult }) {
+  return (
+    <article className="result-card">
+      <div>
+        <span>
+          {new Date(result.starts_at).toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            timeZone: 'UTC',
+          })}
+        </span>
+        <strong>{roundRange(result.starts_at, result.ends_at_exclusive)}</strong>
+      </div>
+      <Metric label="Final" value={formatSol(result.final_settled_balance_lamports)} />
+      <Metric
+        label="P&L"
+        value={signedSol(result.hourly_pnl_lamports)}
+        className={pnlClass(result.hourly_pnl_lamports)}
+      />
+      {result.reward_allocation_lamports !== null &&
+        result.reward_allocation_lamports !== undefined && (
+          <Metric
+            label={`Reward · Rank #${result.reward_rank}`}
+            value={`${formatSol(result.reward_allocation_lamports, 9).replace(/SOL$/, competitionRewardUnit)} · ${isolatedCompetitionTest ? 'TEST · unpaid' : 'Pending'}`}
+          />
+        )}
+    </article>
+  );
+}
+
+function ExecutionPreview({ quote }: { quote: TradeQuotePreview }) {
+  return (
+    <div className="ticket-review" aria-label="Authoritative execution estimate">
+      <span>Expected receive</span>
+      <strong>
+        {quote.side === 'BUY'
+          ? formatUnits(quote.output, quote.decimals, 6) + ' tokens'
+          : formatSol(quote.output, 9)}
+      </strong>
+      <span>Reported Paper SOL fee</span>
+      <strong>{formatSol(quote.feeLamports, 9)}</strong>
+      <span>Current route</span>
+      <strong>{venueName(quote.protocol)}</strong>
+      {quote.estimatedRealizedPnlLamports !== null && (
+        <>
+          <span>Estimated realized P&amp;L</span>
+          <strong>{signedSol(quote.estimatedRealizedPnlLamports, 9)}</strong>
+        </>
+      )}
+      <span>Quote source</span>
+      <strong>Confirmed bank {quote.slot}</strong>
+      <span>Validity</span>
+      <strong>
+        {Date.parse(quote.expiresAt) > Date.now() ? 'Recent estimate' : 'Expired · preview again'}
+      </strong>
+      <small>
+        Server enforces the signed quote expiry and net minimum output at execution. Slippage limit: {quote.slippageBps / 100}%.
+        Zero reported SOL fee does not certify a fee-free pool. Price-impact percentage is unavailable.
+      </small>
+    </div>
+  );
+}
+
+function FillSummary({ result }: { result: BuyResult }) {
+  return (
+    <span>
+      Spent {formatSol(result.actualPaperSolSpentLamports, 9).replace(/\sSOL$/, ' Paper SOL')} ·
+      Received {result.tokenQuantityReceivedBaseUnits} base units ·{' '}
+      {venueName(result.executionProtocol)} · Fee{' '}
+      {formatSol(result.feeLamports, 9).replace(/\sSOL$/, ' Paper SOL')}
+    </span>
+  );
+}
+function SellSummary({ result, decimals }: { result: SellResult; decimals: number }) {
+  return (
+    <span>
+      Sold {formatUnits(result.tokenAmountSoldBaseUnits, decimals, 6)} · Received{' '}
+      {formatSol(result.paperSolCreditedLamports, 9).replace(/\sSOL$/, ' Paper SOL')} · P&L{' '}
+      {signedSol(result.realizedPnlLamports, 9).replace(/\sSOL$/, ' Paper SOL')} ·{' '}
+      {venueName(result.executionProtocol)}
+    </span>
+  );
+}
+function NoticeCard({ notice }: { notice: Notice }) {
+  return (
+    <div className={`notice ${notice.tone}`} role={notice.tone === 'error' ? 'alert' : 'status'}>
+      <strong>{notice.title}</strong>
+      <span>{notice.body}</span>
+    </div>
+  );
+}
+function PageFrame({ children }: { children: ReactNode }) {
+  return <div className="page">{children}</div>;
+}
+function PageTitle({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <header className="page-title">
+      <span className="eyebrow">{eyebrow}</span>
+      <h1>{title}</h1>
+      <p>{subtitle}</p>
+    </header>
+  );
+}
+function PanelHead({
+  eyebrow,
+  title,
+  badge,
+  count,
+}: {
+  eyebrow: string;
+  title: string;
+  badge?: string;
+  count?: number;
+}) {
+  return (
+    <header className="panel-head">
+      <div>
+        <span className="eyebrow">{eyebrow}</span>
+        <h2>{title}</h2>
+      </div>
+      {badge && (
+        <span className="badge">
+          <span className="status-dot" />
+          {badge}
+        </span>
+      )}
+      {count !== undefined && <span className="count">{count}</span>}
+    </header>
+  );
+}
+function Metric({
+  label,
+  value,
+  note,
+  accent,
+  className = '',
+}: {
+  label: string;
+  value: string;
+  note?: string;
+  accent?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`metric ${accent ? 'accent' : ''} ${className}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      {note && <small>{note}</small>}
+    </div>
+  );
+}
+function Rule({ number, title, body }: { number: string; title: string; body: string }) {
+  return (
+    <div className="rule">
+      <span>{number}</span>
+      <strong>{title}</strong>
+      <p>{body}</p>
+    </div>
+  );
+}
+function EmptyState({ title, body, compact }: { title: string; body: string; compact?: boolean }) {
+  return (
+    <section className={`empty ${compact ? 'compact' : ''}`}>
+      <div className="empty-icon">◇</div>
+      <h2>{title}</h2>
+      <p>{body}</p>
+    </section>
+  );
+}
+function SkeletonPanel() {
+  return (
+    <div className="panel skeleton-panel">
+      <i />
+      <i />
+      <i />
+    </div>
+  );
+}
+function SkeletonRows() {
+  return (
+    <div className="skeleton-rows">
+      <i />
+      <i />
+      <i />
+    </div>
+  );
+}
+
+function signedSol(value: string, precision = 4): string {
+  const amount = BigInt(value);
+  return `${amount > 0n ? '+' : ''}${formatSol(amount, precision)}`;
+}
+function utcTime(value: string): string {
+  return new Date(value).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'UTC',
+  });
+}
+function roundRange(start: string, end: string): string {
+  return `${utcTime(start).slice(0, 5)}–${utcTime(end).slice(0, 5)} UTC`;
+}
+function roundLabel(round: Round): string {
+  return roundRange(round.startsAt, round.endsAtExclusive);
+}
+function countdownText(milliseconds: number): string {
+  if (milliseconds <= 0) return '00:00';
+  const seconds = Math.floor(milliseconds / 1_000);
+  return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function SlippageControl({ value, onChange }: { value: number; onChange(v: number): void }) {
+  return <label>Slippage limit <select value={value} onChange={e => onChange(Number(e.target.value))}>
+    {[0,50,100,300,500].map(bps => <option key={bps} value={bps}>{bps / 100}%</option>)}
+  </select></label>;
+}

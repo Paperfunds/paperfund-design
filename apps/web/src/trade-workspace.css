@@ -1,0 +1,1346 @@
+/* Trade workspace. Component state, order routing and market subscriptions are unchanged. */
+.pf-local-acceptance {
+  padding: 5px 16px;
+  background: #271a36;
+  color: #c6b5d8;
+  font: 10px/1.5 system-ui;
+  border-bottom: 1px solid #a580cc25;
+}
+.pf-token-screen:not(.pf-portfolio-screen) {
+  --ws-bg: #100e19;
+  --ws-panel: #15121f;
+  --ws-line: #ffffff0e;
+  --ws-muted: #958ba9;
+  --ws-accent: #c8a2ff;
+  padding: 10px 16px 26px;
+  background: radial-gradient(ellipse at 90% 0%, #7b3abc09, transparent 50%);
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-terminal-grid {
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 10px;
+  align-items: start;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-practice-mode {
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #9970cc26;
+  border-radius: 6px;
+  font-size: 10px;
+  background: #251a331f;
+}
+.pf-token-screen .pf-token-breadcrumb {
+  grid-row: 1;
+  padding: 0 2px;
+  margin: 0;
+  font-size: 10px;
+}
+.pf-token-screen .pf-token-summary {
+  grid-column: 1/-1;
+  grid-row: 2;
+  min-width: 0;
+  border: 1px solid #b490e32a;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #21192e, #14111e 65%);
+  overflow: hidden;
+  box-shadow: 0 4px 20px #0002;
+}
+.pf-token-screen .pf-token-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px 8px;
+  min-height: 0;
+  background: none;
+  border: 0;
+}
+.pf-token-screen .pf-token-header > div {
+  min-width: 0;
+}
+.pf-token-screen .pf-token-header .pf-pulse-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px #ffffff04;
+}
+.pf-token-screen .pf-token-header .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ws-muted);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.pf-token-screen .pf-summary-ticker {
+  color: #d9c3f5;
+  background: #b78ae51a;
+  padding: 2px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pf-token-screen .pf-token-header h1 {
+  font-size: 21px;
+  margin: 3px 0;
+  color: #f4edff;
+  overflow-wrap: anywhere;
+}
+.pf-token-screen .pf-token-platform {
+  margin-left: auto;
+  color: #d0b5f1;
+  font-size: 11px;
+  text-align: right;
+}
+.pf-token-screen .pf-token-platform small {
+  color: var(--ws-muted);
+  font-size: 10px;
+}
+.pf-token-screen .pf-trade-socials {
+  margin: 0;
+  padding: 0 16px 10px 74px;
+  background: none;
+  border: 0;
+  gap: 5px;
+}
+.pf-token-screen .pf-trade-socials a {
+  padding: 3px 6px;
+  border-color: #b998df26;
+  background: #b998df09;
+  font-size: 10px;
+  color: #bfb1d2;
+}
+.pf-token-screen .pf-trade-verified {
+  font-size: 10px;
+  color: #7fc9aa;
+}
+.pf-token-screen .pf-token-stats {
+  display: grid;
+  grid-template-columns: 1.25fr 1.25fr repeat(4, 1fr);
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 11px 0;
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid var(--ws-line);
+  background: #0a081029;
+}
+.pf-token-screen .pf-token-stats > div {
+  padding: 0 16px;
+  border-right: 1px solid var(--ws-line);
+  min-width: 0;
+}
+.pf-token-screen .pf-token-stats > div:last-child {
+  border: 0;
+}
+.pf-token-screen .pf-token-stats small {
+  display: block;
+  font-size: 10px;
+  color: #9a8fab;
+  margin-bottom: 4px;
+}
+.pf-token-screen .pf-token-stats strong {
+  font-size: 18px;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+.pf-token-screen .pf-token-stats > div:first-child strong {
+  font-size: 23px;
+  color: #e5ccff;
+}
+.pf-token-screen .pf-stat-unit {
+  color: #867397;
+  font-size: 8px;
+  margin-left: 4px;
+}
+.pf-token-screen .pf-summary-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--ws-line);
+  font-size: 10px;
+  color: var(--ws-muted);
+}
+.pf-summary-detail span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.pf-summary-detail b {
+  font-weight: 500;
+  color: #c2b6d0;
+  font-variant-numeric: tabular-nums;
+}
+.pf-summary-detail a {
+  margin-left: auto;
+  color: #baa0db;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-web-chart {
+  grid-row: 3;
+  margin: 0;
+  border-radius: 10px;
+  border-color: #a68bc528;
+  background: var(--ws-bg);
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-price-canvas {
+  height: clamp(360px, 45dvh, 620px);
+}
+.pf-token-screen .pf-chart-controls {
+  padding: 11px 12px 9px;
+  gap: 7px;
+  background: linear-gradient(#1b1626, #16121f);
+  border-bottom: 1px solid var(--ws-line);
+}
+.pf-token-screen .pf-chart-controls > div:first-child {
+  margin-bottom: 0;
+}
+.pf-token-screen .pf-chart-controls > div:first-child > strong {
+  font-size: 12px;
+  color: #ece2f8;
+}
+.pf-token-screen .pf-chart-controls .pf-chart-market-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.pf-chart-market-line > strong {
+  font-size: 20px;
+  color: #efe7f9;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+}
+.pf-chart-market-line small {
+  font-size: 10px;
+  color: var(--ws-muted);
+}
+.pf-token-screen .pf-feed-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #ffffff04;
+}
+.pf-feed-state i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pf-feed-state.is-live {
+  color: #7ad9b3;
+}
+.pf-feed-state.is-delayed {
+  color: #d3b47c;
+}
+.pf-token-screen .pf-chart-intervals {
+  gap: 1px;
+  padding-right: 6px;
+  border-right: 1px solid var(--ws-line);
+}
+.pf-token-screen .pf-chart-intervals button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #a69ab8;
+  padding: 5px 7px;
+  min-width: 29px;
+  font-size: 10px;
+}
+.pf-token-screen .pf-chart-intervals button[aria-pressed='true'] {
+  background: #b78ae51f;
+  color: #dfbdff;
+  border-color: #b78ae52a;
+}
+.pf-token-screen .pf-chart-controls > button,
+.pf-token-screen .pf-chart-controls > select {
+  padding: 5px 7px;
+  font-size: 10px;
+  min-height: 27px;
+  background: #ffffff04;
+  border-color: #ffffff12;
+  color: #b7a8c9;
+}
+.pf-token-screen .pf-price-ohlc {
+  padding: 8px 12px;
+  background: #100e19;
+  color: #847991;
+  gap: 12px;
+  border: 0;
+  min-height: 29px;
+  box-sizing: border-box;
+}
+.pf-price-ohlc b {
+  color: #c6bcd4;
+  font-weight: 500;
+}
+.pf-token-screen .pf-chart-fit {
+  font-size: 9px;
+  padding: 4px 8px;
+  margin: 0 10px 7px;
+  background: #ffffff05;
+  border-color: #ffffff14;
+  color: #b1a2c1;
+}
+.pf-chart-statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--ws-line);
+  font-size: 9px;
+  color: var(--ws-muted);
+  font-variant-numeric: tabular-nums;
+}
+.pf-chart-observations,
+.pf-token-screen .pf-chart-source {
+  font-size: 9px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--ws-line);
+  color: #9686a8;
+  background: #0b091120;
+}
+.pf-chart-observations > summary,
+.pf-chart-source > summary {
+  cursor: pointer;
+  padding: 2px 0;
+}
+.pf-token-screen .pf-chart-provenance {
+  padding: 8px 0;
+  display: grid;
+  gap: 7px;
+}
+.pf-token-screen .pf-chart-source p {
+  max-width: 110ch;
+  line-height: 1.7;
+  font-size: 10px;
+}
+.pf-token-screen .pf-chart-empty {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse, #a175e50c, transparent 65%),
+    repeating-linear-gradient(0deg, transparent 0 49px, #ffffff04 50px);
+}
+.pf-token-screen .pf-chart-empty strong {
+  color: #e1d4ee;
+  font-size: 16px;
+}
+.pf-token-screen .pf-chart-empty p {
+  max-width: 52ch;
+  color: #9f90af;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-practice-order {
+  grid-row: 3 / span 3;
+  padding: 14px;
+  top: 72px;
+  max-height: calc(100dvh - 84px);
+  border-radius: 10px;
+  border-color: #9c73c244;
+  background: linear-gradient(155deg, #241a32, #15111f 45%);
+  box-shadow: 0 8px 30px #0002;
+  scrollbar-color: #5c436e transparent;
+  display: block;
+}
+.pf-token-screen .pf-ticket-brand {
+  border-color: var(--ws-line);
+  padding-bottom: 10px;
+}
+.pf-token-screen .pf-ticket-brand strong {
+  font-size: 16px;
+  letter-spacing: -0.03em;
+}
+.pf-token-screen .pf-ticket-brand span {
+  background: #ae89d317;
+  color: #cdb1e9;
+  border: 1px solid #ae89d32a;
+}
+.pf-token-screen .pf-practice-order > h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 7px;
+  font-size: 12px;
+}
+.pf-ticket-session {
+  font-size: 8px;
+  color: #a695b7;
+  font-weight: 400;
+}
+.pf-token-screen .pf-ticket-market {
+  background: #ffffff04;
+  border: 1px solid var(--ws-line);
+  border-radius: 6px;
+  padding: 9px;
+  margin: 0 0 10px;
+}
+.pf-token-screen .pf-ticket-market strong {
+  font-size: 12px;
+}
+.pf-token-screen .pf-ticket-market small {
+  font-size: 9px;
+  color: var(--ws-muted);
+}
+.pf-token-screen .pf-ticket-wallet {
+  padding: 5px 0;
+  color: #bdabcf;
+}
+.pf-token-screen .pf-ticket-wallet button {
+  border: 0;
+  background: transparent;
+  color: #a698b8;
+}
+.pf-token-screen .pf-ticket-cash {
+  padding: 10px 0 12px;
+  border-bottom: 1px solid var(--ws-line);
+}
+.pf-token-screen .pf-ticket-cash strong {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  color: #eee4fb;
+}
+.pf-token-screen .pf-ticket-cash strong span {
+  font-size: 11px;
+  font-weight: 400;
+  color: #aa98be;
+  letter-spacing: 0;
+}
+.pf-token-screen .pf-practice-order > p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #b4a1c7;
+}
+.pf-token-screen .pf-practice-sides {
+  padding: 4px;
+  background: #09060e66;
+  border: 1px solid #ffffff09;
+  border-radius: 7px;
+  gap: 4px;
+  margin: 12px 0;
+}
+.pf-token-screen .pf-practice-sides button {
+  border-color: transparent;
+  background: transparent;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #9a8ba9;
+  min-height: 35px;
+  padding: 8px;
+}
+.pf-token-screen .pf-practice-sides button:first-child[aria-pressed='true'] {
+  background: #204c3c;
+  border-color: #72dfac3d;
+  color: #a3f3ca;
+  box-shadow: 0 2px 8px #0002;
+}
+.pf-token-screen .pf-practice-sides button:last-child[aria-pressed='true'] {
+  background: #502a3c;
+  border-color: #e793b13d;
+  color: #ffc2d3;
+}
+.pf-token-screen .pf-practice-order label {
+  color: #baa9cb;
+  font-size: 10px;
+  gap: 6px;
+  margin: 10px 0;
+}
+.pf-token-screen .pf-practice-order input {
+  background: #0e0b15;
+  border-color: #a986c52e;
+  font-size: 18px;
+  padding: 11px 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .pf-practice-order select {
+  border-color: #a986c52e;
+  background: #100c17;
+  font-size: 11px;
+}
+.pf-token-screen .pf-ticket-presets button {
+  padding: 8px 4px;
+  color: #ccbbdc;
+  background: #a77dca0a;
+  border-color: #b28bd62b;
+  border-radius: 5px;
+}
+.pf-token-screen .pf-ticket-presets button[aria-pressed='true'] {
+  color: #edc4d4;
+  background: #74415c33;
+  border-color: #dc8fac55;
+}
+.pf-token-screen .pf-trade-presets summary {
+  color: #9f89b6;
+  font-size: 9px;
+}
+.pf-token-screen .pf-ticket-preview {
+  width: 100%;
+  font-weight: 650;
+  min-height: 41px;
+  margin-top: 5px;
+  border-color: #84ddac55;
+  color: #9ae5be;
+  background: linear-gradient(110deg, #244836, #21392e);
+}
+.pf-token-screen .pf-ticket-preview.sell {
+  border-color: #d886a155;
+  color: #f2b3c7;
+  background: linear-gradient(110deg, #472437, #34202d);
+}
+.pf-token-screen .pf-ticket-confirm {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 8px;
+  font-weight: 700;
+}
+.pf-token-screen .pf-practice-order button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pf-token-screen .pf-practice-quote {
+  background: #13201c;
+  border-color: #75c79f35;
+  box-shadow: inset 2px 0 #6cd7a259;
+}
+.pf-token-screen .pf-current-position {
+  margin-top: 14px;
+  border-color: var(--ws-line);
+}
+.pf-token-screen .pf-current-position h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #d7c8e5;
+  font-size: 11px;
+}
+.pf-position-state {
+  color: #b49bc9;
+  font-size: 9px;
+  font-weight: 400;
+  background: #b49bc912;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+.pf-token-screen .pf-realized-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 10px;
+  background: #ffffff03;
+  border: 1px solid var(--ws-line);
+  border-radius: 6px;
+  font-size: 10px;
+  gap: 5px;
+}
+.pf-token-screen .pf-realized-summary strong {
+  font-size: 18px;
+  letter-spacing: -0.025em;
+}
+.pf-token-screen .pf-current-position dl {
+  margin: 10px 0;
+}
+.pf-token-screen .pf-current-position dl > div {
+  font-size: 10px;
+  margin: 0;
+  padding: 7px 0;
+  border-bottom: 1px solid #ffffff06;
+}
+.pf-token-screen .pf-ticket-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding-top: 10px;
+}
+.pf-token-screen .pf-ticket-links button,
+.pf-token-screen .pf-ticket-links a {
+  font-size: 10px;
+  color: #c8a8e7;
+  padding: 5px;
+  border: 0;
+  background: transparent;
+}
+.pf-token-screen .pf-ticket-recent,
+.pf-token-screen .pf-terminal-competition {
+  background: #0f0c1755;
+  border-color: var(--ws-line);
+  border-radius: 7px;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-token-analytics {
+  grid-row: 4;
+  border-color: #a68bc528;
+  border-radius: 10px;
+  background: var(--ws-panel);
+}
+.pf-token-screen .pf-analytics-tabs {
+  padding: 0 8px;
+  gap: 6px;
+  border-bottom: 1px solid var(--ws-line);
+  background: #1c1626;
+  scrollbar-width: thin;
+}
+.pf-token-screen .pf-analytics-tabs button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 13px 9px 11px;
+  background: transparent;
+  color: #9e8fb0;
+  font-weight: 500;
+  font-size: 11px;
+}
+.pf-token-screen .pf-analytics-tabs button[aria-pressed='true'] {
+  color: #e2c4ff;
+  background: linear-gradient(transparent, #a271ce12);
+  border-bottom-color: #be8eef;
+  box-shadow: none;
+}
+.pf-token-screen .pf-terminal-analytics-body {
+  min-height: 220px;
+  padding: 13px 14px;
+}
+.pf-token-screen .pf-terminal-analytics-body h3 {
+  font-size: 12px;
+  color: #d8c8e7;
+  margin-bottom: 0;
+}
+.pf-token-screen .pf-terminal-analytics-body p {
+  color: #9686a9;
+  font-size: 10px;
+  line-height: 1.65;
+}
+.pf-token-screen .pf-terminal-analytics-body header button,
+.pf-token-screen .pf-terminal-analytics-body header select {
+  font-size: 10px;
+  padding: 5px 8px;
+  background: #b38bd012;
+  border: 1px solid #b38bd029;
+  border-radius: 5px;
+}
+.pf-token-screen table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.pf-token-screen table th {
+  background: #1b1625;
+  color: #9585a7;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-size: 9px;
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--ws-line);
+}
+.pf-token-screen table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #ffffff06;
+  color: #c8bad8;
+  font-size: 11px;
+}
+.pf-token-screen table tbody tr:hover {
+  background: #b995df07;
+}
+.pf-token-screen .pf-analytics-kpis {
+  padding: 12px;
+  background: #b28acf08;
+  border: 1px solid var(--ws-line);
+  border-radius: 7px;
+  gap: 24px;
+}
+.pf-token-screen .pf-analytics-kpis b {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  color: #dbc8ed;
+}
+.pf-token-screen .pf-analytics-info {
+  padding: 14px;
+}
+.pf-token-screen .pf-analytics-info > div {
+  border-color: var(--ws-line);
+  font-size: 11px;
+}
+.pf-token-screen .pf-token-analytics > .panel {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 14px;
+  margin: 0;
+}
+.pf-token-screen .pf-token-analytics > .panel h2 {
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+.pf-token-screen .pf-token-analytics > .panel p {
+  font-size: 11px;
+  color: var(--ws-muted);
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-market-freshness {
+  grid-row: 5;
+  padding: 0 4px;
+  font-size: 9px;
+  color: #80718e;
+  overflow-wrap: anywhere;
+}
+.pf-token-screen .pf-up,
+.pf-token-screen table .pf-up {
+  color: #7cdbb2;
+}
+.pf-token-screen .pf-down,
+.pf-token-screen table .pf-down {
+  color: #f098b3;
+}
+.pf-token-screen button,
+.pf-token-screen a,
+.pf-token-screen select {
+  transition:
+    background-color 120ms,
+    border-color 120ms,
+    color 120ms;
+}
+.pf-token-screen button:not(:disabled):hover {
+  filter: brightness(1.15);
+}
+.pf-token-screen :is(button, a, input, select, summary):focus-visible {
+  outline: 2px solid #bc8ef4;
+  outline-offset: 3px;
+}
+@media (min-width: 1800px) {
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-terminal-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-terminal-grid {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .pf-token-screen .pf-token-stats > div {
+    padding: 0 10px;
+  }
+  .pf-token-screen .pf-token-stats strong {
+    font-size: 15px;
+  }
+  .pf-token-screen .pf-token-stats > div:first-child strong {
+    font-size: 20px;
+  }
+}
+@media (max-width: 760px) {
+  .pf-token-screen:not(.pf-portfolio-screen) {
+    padding: 8px;
+  }
+  .pf-token-screen .pf-practice-mode {
+    flex-wrap: wrap;
+    line-height: 1.7;
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-token-breadcrumb {
+    margin: 8px 2px;
+  }
+  .pf-token-screen .pf-token-header {
+    padding: 12px 12px 8px;
+    gap: 10px;
+  }
+  .pf-token-screen .pf-token-header h1 {
+    font-size: 19px;
+  }
+  .pf-token-screen .pf-token-platform {
+    margin: 4px 0 0;
+    text-align: left;
+    line-height: 1.6;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pf-token-screen .pf-trade-socials {
+    padding: 0 12px 10px;
+  }
+  .pf-token-screen .pf-trade-verified {
+    width: auto;
+    margin-left: 0;
+  }
+  .pf-token-screen .pf-token-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 0;
+    padding: 12px 0;
+  }
+  .pf-token-screen .pf-token-stats > div {
+    padding: 0 10px;
+  }
+  .pf-token-screen .pf-token-stats > div:nth-child(3n) {
+    border: 0;
+  }
+  .pf-token-screen .pf-token-stats small {
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-token-stats strong {
+    font-size: 14px;
+  }
+  .pf-token-screen .pf-token-stats > div:first-child strong {
+    font-size: 19px;
+  }
+  .pf-token-screen .pf-summary-detail {
+    padding: 9px 10px;
+    gap: 7px 16px;
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-summary-detail a {
+    margin-left: 0;
+  }
+  .pf-token-screen .pf-web-chart {
+    margin-top: 10px;
+  }
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-price-canvas {
+    height: 340px;
+  }
+  .pf-token-screen .pf-chart-controls {
+    padding: 10px;
+  }
+  .pf-token-screen .pf-chart-controls > div:first-child small {
+    max-width: none;
+  }
+  .pf-token-screen .pf-chart-market-line > strong {
+    font-size: 18px;
+  }
+  .pf-token-screen .pf-chart-market-line small {
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-chart-intervals {
+    width: 100%;
+    border: 0;
+    padding-bottom: 3px;
+  }
+  .pf-token-screen .pf-chart-intervals button {
+    min-height: 33px;
+    min-width: 33px;
+  }
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-practice-order {
+    position: static;
+    max-height: none;
+    margin-top: 8px;
+    padding: 16px;
+  }
+  .pf-token-screen .pf-mobile-workspace {
+    border: 1px solid #b38bd029;
+    border-radius: 7px;
+    background: #17121f;
+    padding: 4px;
+    margin: 8px 0;
+  }
+  .pf-token-screen .pf-mobile-workspace button {
+    font-size: 11px;
+    background: transparent;
+    border: 0;
+    color: #a48eb8;
+    border-radius: 4px;
+  }
+  .pf-token-screen .pf-mobile-workspace button[aria-pressed='true'] {
+    background: #bc8bec1f;
+    color: #e1c6fc;
+  }
+  .pf-token-screen .pf-analytics-tabs {
+    padding: 0 5px;
+    gap: 0;
+  }
+  .pf-token-screen .pf-analytics-tabs button {
+    min-height: 43px;
+    padding-inline: 10px;
+  }
+  .pf-token-screen .pf-terminal-analytics-body {
+    padding: 12px;
+  }
+  .pf-token-screen table td,
+  .pf-token-screen table th {
+    padding: 9px 10px;
+  }
+  .pf-token-screen .pf-chart-statusbar {
+    font-size: 8px;
+    gap: 5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf-token-screen * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focused refinement: compact summary, readable chart navigation and execution ticket. */
+.pf-chart-stage {
+  position: relative;
+}
+.pf-chart-stage:has(.pf-price-canvas) > .pf-chart-empty {
+  position: absolute;
+  inset: 31px 0 34px;
+  min-height: 0;
+  background-color: #100e19ed;
+  pointer-events: none;
+}
+.pf-token-screen .pf-token-header .pf-contract {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pf-token-screen .pf-token-header .pf-contract code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pf-token-screen .pf-token-header .pf-contract button {
+  flex: none;
+}
+.pf-token-screen .pf-token-header h1 {
+  font-size: 18px;
+  line-height: 1.25;
+}
+.pf-token-screen .pf-token-header .pf-pulse-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+.pf-token-screen .pf-token-stats strong {
+  font-size: 16px;
+}
+.pf-token-screen .pf-token-stats > div:first-child strong {
+  font-size: 21px;
+}
+.pf-token-screen .pf-summary-detail {
+  font-size: 9px;
+  padding-block: 7px;
+  gap: 7px 20px;
+}
+.pf-token-screen .pf-chart-market-line {
+  margin-bottom: 0;
+}
+.pf-token-screen .pf-chart-controls {
+  padding-block: 9px 7px;
+}
+.pf-token-screen .pf-chart-market-line > strong {
+  font-size: 19px;
+  min-width: 125px;
+}
+.pf-token-screen .pf-price-ohlc {
+  font-variant-numeric: tabular-nums;
+  min-height: 31px;
+}
+.pf-chart-navigation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #100e19;
+}
+.pf-chart-navigation button {
+  padding: 4px 7px;
+  font-size: 9px;
+  background: #ac80d110;
+  color: #c9b1df;
+  border: 1px solid #ac80d12a;
+  border-radius: 4px;
+}
+.pf-chart-navigation span {
+  margin-left: auto;
+  color: #80738f;
+  font-size: 9px;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-price-canvas {
+  height: clamp(350px, 48dvh, 650px);
+}
+.pf-token-screen .pf-ticket-brand {
+  padding-bottom: 8px;
+}
+.pf-token-screen .pf-ticket-brand img {
+  width: 20px;
+  height: 20px;
+}
+.pf-token-screen .pf-practice-order > h2 {
+  font-size: 11px;
+  margin: 9px 0;
+}
+.pf-token-screen .pf-ticket-cash {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  margin: 7px 0 10px;
+  border: 1px solid #b78ae528;
+  background: linear-gradient(120deg, #b78ae50d, #b78ae503);
+  border-radius: 6px;
+}
+.pf-token-screen .pf-ticket-cash small {
+  font-size: 8px;
+  max-width: 65px;
+  line-height: 1.65;
+  letter-spacing: 0.06em;
+}
+.pf-token-screen .pf-ticket-cash strong {
+  font-size: 23px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .pf-ticket-cash strong span {
+  font-size: 10px;
+}
+.pf-token-screen .pf-practice-sides {
+  margin: 9px 0 12px;
+  padding: 3px;
+}
+.pf-token-screen .pf-practice-sides button {
+  min-height: 37px;
+  font-size: 12px;
+}
+.pf-token-screen .pf-amount-field {
+  position: relative;
+  display: flex;
+}
+.pf-token-screen .pf-amount-field input {
+  padding: 12px 88px 12px 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.pf-amount-field > span {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 9px;
+  color: #ac92c3;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+.pf-token-screen .pf-ticket-settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.pf-token-screen .pf-ticket-settings > label {
+  margin: 0;
+}
+.pf-token-screen .pf-ticket-settings select {
+  padding: 8px;
+  min-height: 34px;
+}
+.pf-ticket-settings > div {
+  display: grid;
+  gap: 6px;
+}
+.pf-ticket-settings small {
+  font-size: 9px;
+  color: #9d88b0;
+}
+.pf-ticket-settings strong {
+  font-size: 10px;
+  font-weight: 500;
+  color: #c7b5d7;
+  min-height: 34px;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #ffffff03;
+  border: 1px solid #ffffff09;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .pf-ticket-preview {
+  min-height: 42px;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+.pf-token-screen .pf-practice-quote {
+  padding: 10px;
+  margin: 10px 0 0;
+  background: #10231d80;
+}
+.pf-practice-quote > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #7bd9ae1a;
+  color: #a6c8b8;
+  font-size: 9px;
+}
+.pf-practice-quote > header b {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+  text-align: right;
+}
+.pf-token-screen .pf-practice-quote > p {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 6px 0;
+  font-size: 9px;
+}
+.pf-practice-quote > p > span {
+  color: #95b2a5;
+  flex-shrink: 0;
+}
+.pf-practice-quote > p > b {
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.pf-token-screen .pf-practice-quote > .pf-quote-receive {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+}
+.pf-quote-receive > strong {
+  font-size: 17px;
+  color: #acedd0;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.pf-quote-details {
+  margin-top: 5px;
+  border-top: 1px solid #7bd9ae1a;
+  padding-top: 7px;
+  color: #9bbdac;
+  font-size: 9px;
+}
+.pf-quote-details summary {
+  cursor: pointer;
+}
+.pf-quote-details small {
+  padding-top: 7px;
+}
+.pf-token-screen .pf-order-feedback {
+  padding: 9px 10px;
+  border: 1px solid #75c79f35;
+  background: #75c79f0b;
+  border-radius: 5px;
+  font-size: 10px;
+}
+.pf-token-screen .pf-order-feedback.is-error {
+  border-color: #e991ae35;
+  background: #e991ae0b;
+}
+.pf-token-screen .pf-current-position {
+  margin-top: 12px;
+}
+.pf-token-screen .pf-realized-summary {
+  gap: 4px;
+  padding: 9px;
+  margin-bottom: 8px;
+}
+.pf-token-screen .pf-realized-summary strong {
+  font-size: 17px;
+}
+.pf-token-screen .pf-realized-summary small {
+  font-size: 8px;
+}
+.pf-token-screen .pf-terminal-competition {
+  padding: 10px;
+}
+.pf-token-screen .pf-terminal-competition dl {
+  margin: 6px 0;
+}
+.pf-token-screen .pf-terminal-competition dl > div {
+  font-size: 10px;
+  margin: 5px 0;
+}
+.pf-token-screen .pf-terminal-competition p {
+  margin-bottom: 0;
+  font-size: 9px;
+}
+.pf-analytics-freshness {
+  font-size: 9px;
+  color: #a38db6;
+  margin: 8px 0;
+  font-variant-numeric: tabular-nums;
+}
+.pf-analytics-coverage {
+  margin: 8px 0 10px;
+  font-size: 9px;
+  color: #9683a9;
+  overflow-wrap: anywhere;
+}
+.pf-analytics-coverage summary {
+  cursor: pointer;
+}
+.pf-token-screen .pf-analytics-coverage p {
+  font-size: 10px;
+  line-height: 1.65;
+}
+.pf-activity-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  padding: 10px 0 2px;
+  font-size: 10px;
+  color: #9b8aad;
+  font-variant-numeric: tabular-nums;
+}
+.pf-activity-summary > span:first-child {
+  color: #bba0d5;
+}
+.pf-activity-summary b {
+  font-weight: 500;
+  color: #c8b9d6;
+}
+.pf-token-screen .pf-terminal-analytics-body table {
+  table-layout: auto;
+}
+.pf-token-screen .pf-terminal-analytics-body table :is(td, th):not(:first-child):not(:last-child) {
+  text-align: right;
+}
+.pf-token-screen .pf-terminal-analytics-body table td {
+  padding-block: 8px;
+}
+.pf-token-screen .pf-terminal-analytics-body a {
+  text-decoration: none;
+}
+.pf-token-screen .pf-terminal-analytics-body a:hover {
+  color: #e6ccff;
+}
+.pf-token-screen .pf-terminal-analytics-body > p:has(> a) {
+  overflow-wrap: anywhere;
+}
+.pf-token-screen .pf-analytics-empty {
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px dashed #b78ae522;
+  border-radius: 6px;
+  padding: 12px;
+  background: #b78ae503;
+}
+@media (min-width: 1100px) {
+  .pf-token-screen .pf-token-summary {
+    display: grid;
+    grid-template-columns: minmax(340px, 0.95fr) minmax(0, 1.6fr);
+  }
+  .pf-token-screen .pf-token-header {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 11px 14px 5px;
+    gap: 10px;
+  }
+  .pf-token-screen .pf-token-header > div {
+    flex: 1;
+  }
+  .pf-token-screen .pf-token-header .pf-contract code {
+    max-width: clamp(120px, 16vw, 300px);
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-token-platform {
+    max-width: 130px;
+    font-size: 9px;
+    line-height: 1.5;
+  }
+  .pf-token-screen .pf-token-platform small {
+    font-size: 8px;
+  }
+  .pf-token-screen .pf-trade-socials {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 14px 10px 64px;
+    gap: 4px;
+  }
+  .pf-token-screen .pf-trade-socials a {
+    font-size: 9px;
+    padding: 3px 5px;
+  }
+  .pf-token-screen .pf-trade-verified {
+    font-size: 8px;
+    margin-left: 0;
+  }
+  .pf-token-screen .pf-token-stats {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    border-top: 0;
+    border-left: 1px solid var(--ws-line);
+    border-radius: 0;
+    padding-block: 12px;
+  }
+  .pf-token-screen .pf-token-stats > div {
+    padding-inline: 12px;
+  }
+  .pf-token-screen .pf-token-stats small {
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-summary-detail {
+    grid-column: 1/-1;
+    grid-row: 3;
+  }
+  .pf-token-screen .pf-practice-order > .pf-ticket-market {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .pf-token-screen .pf-token-header {
+    padding: 10px 10px 6px;
+  }
+  .pf-token-screen .pf-token-header h1 {
+    font-size: 18px;
+  }
+  .pf-token-screen .pf-trade-socials {
+    padding: 0 10px 8px;
+  }
+  .pf-token-screen .pf-token-stats {
+    gap: 10px 0;
+    padding-block: 10px;
+  }
+  .pf-token-screen .pf-token-stats small {
+    font-size: 8px;
+  }
+  .pf-token-screen .pf-token-stats strong {
+    font-size: 14px;
+  }
+  .pf-token-screen .pf-token-stats > div:first-child strong {
+    font-size: 19px;
+  }
+  .pf-token-screen .pf-summary-detail {
+    gap: 6px 12px;
+    font-size: 8px;
+  }
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-price-canvas {
+    height: 350px;
+  }
+  .pf-chart-navigation span {
+    width: 100%;
+    margin: 0;
+    font-size: 8px;
+    padding-top: 2px;
+  }
+  .pf-token-screen .pf-practice-order .pf-ticket-cash strong {
+    font-size: 25px;
+  }
+  .pf-token-screen .pf-practice-order .pf-ticket-cash small {
+    max-width: none;
+  }
+  .pf-token-screen .pf-practice-order .pf-ticket-token {
+    display: none;
+  }
+  .pf-activity-summary {
+    font-size: 9px;
+    gap: 8px 12px;
+  }
+  .pf-token-screen .pf-terminal-analytics-body {
+    min-height: 180px;
+  }
+}

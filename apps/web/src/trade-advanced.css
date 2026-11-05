@@ -1,0 +1,481 @@
+/* Existing Practice terminal only. Pulse and competition routes keep their layouts. */
+.pf-token-screen:not(.pf-portfolio-screen) {
+  max-width: none;
+  padding: 12px 18px 24px;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-terminal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 0 12px;
+  align-items: start;
+}
+.pf-token-screen:not(.pf-portfolio-screen) .pf-token-market {
+  display: contents;
+}
+.pf-token-screen .pf-token-breadcrumb,
+.pf-token-screen .pf-token-header,
+.pf-token-screen .pf-trade-socials,
+.pf-token-screen .pf-token-stats {
+  grid-column: 1/-1;
+}
+.pf-token-screen .pf-token-header {
+  padding: 10px 14px;
+  min-height: 74px;
+  border-radius: 8px 8px 0 0;
+  background: #12101b;
+}
+.pf-token-screen .pf-token-header h1 {
+  font-size: 22px;
+  line-height: 1.15;
+  margin: 3px 0 6px;
+  letter-spacing: -0.035em;
+}
+.pf-token-screen .pf-token-header .pf-pulse-avatar {
+  width: 54px;
+  height: 54px;
+  flex: none;
+}
+.pf-token-screen .pf-token-stats {
+  padding: 10px 14px;
+  gap: 16px;
+  margin: 0 0 12px;
+  background: #14101f;
+  border: 1px solid #30253c;
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+}
+.pf-token-screen .pf-token-stats strong {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .pf-token-stats small {
+  color: #a89cb7;
+  font-size: 10px;
+}
+.pf-token-screen .pf-web-chart {
+  grid-column: 1;
+  grid-row: 5;
+  border: 1px solid #33273f;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #100d17;
+  margin: 0 0 12px;
+  min-width: 0;
+}
+.pf-token-screen .pf-price-canvas {
+  height: 450px;
+  touch-action: pan-y;
+}
+.pf-token-screen .pf-token-analytics {
+  grid-column: 1;
+  grid-row: 6;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid #33273f;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #121019;
+}
+.pf-token-screen .pf-market-freshness {
+  grid-column: 1;
+  grid-row: 7;
+}
+.pf-token-screen .pf-practice-order {
+  grid-column: 2;
+  grid-row: 5 / span 3;
+  position: sticky;
+  top: 76px;
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  align-self: start;
+  margin: 0;
+  padding: 14px;
+  min-height: 0;
+  background: linear-gradient(150deg, #21162e, #110e18 60%);
+  border: 1px solid #4b345d;
+  border-radius: 8px;
+}
+.pf-token-screen .pf-practice-order h2 {
+  font-size: 14px;
+  margin: 10px 0;
+}
+.pf-token-screen .pf-ticket-brand {
+  padding-bottom: 9px;
+  border-bottom: 1px solid #392b46;
+}
+.pf-token-screen .pf-ticket-brand img {
+  width: 24px;
+  height: 24px;
+}
+.pf-token-screen .pf-ticket-brand strong {
+  font-size: 16px;
+}
+.pf-token-screen .pf-ticket-brand span {
+  font-size: 9px;
+  padding: 4px 6px;
+}
+.pf-token-screen .pf-ticket-token {
+  display: none;
+}
+.pf-token-screen .pf-ticket-market {
+  margin: 8px 0;
+  padding: 8px;
+  font-size: 12px;
+}
+.pf-token-screen .pf-ticket-cash {
+  padding: 9px 0;
+  margin: 0;
+}
+.pf-token-screen .pf-ticket-cash strong {
+  font-size: 24px;
+}
+.pf-token-screen .pf-ticket-cash small {
+  font-size: 9px;
+  color: #b4a3c5;
+}
+.pf-token-screen .pf-ticket-wallet {
+  font-size: 11px;
+  gap: 7px;
+}
+.pf-token-screen .pf-ticket-wallet button {
+  font-size: 9px;
+  padding: 5px 6px;
+}
+.pf-token-screen .pf-practice-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 9px 0;
+}
+.pf-token-screen .pf-practice-sides button {
+  font-size: 14px;
+  padding: 10px;
+  min-height: 38px;
+  border-radius: 5px;
+}
+.pf-token-screen .pf-practice-sides button:first-child[aria-pressed='true'] {
+  color: #8df4c8;
+  background: #153b30;
+  border-color: #2f8765;
+}
+.pf-token-screen .pf-practice-sides button:last-child[aria-pressed='true'] {
+  color: #ffa8bb;
+  background: #472333;
+  border-color: #a34d69;
+}
+.pf-token-screen .pf-practice-order label {
+  font-size: 11px;
+  margin: 9px 0;
+  gap: 5px;
+}
+.pf-token-screen .pf-practice-order input,
+.pf-token-screen .pf-practice-order select {
+  padding: 9px 10px;
+  font-size: 13px;
+  border-radius: 5px;
+  background: #100c17;
+  border-color: #493552;
+}
+.pf-token-screen .pf-ticket-presets {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.pf-token-screen .pf-ticket-presets button {
+  flex: 1;
+  min-width: 45px;
+  padding: 7px 5px;
+  font-size: 10px;
+}
+.pf-token-screen .pf-trade-presets summary {
+  font-size: 10px;
+  padding: 5px 0;
+}
+.pf-token-screen .pf-practice-quote {
+  padding: 9px;
+  margin: 9px 0;
+  border: 1px solid #44324f;
+  border-radius: 6px;
+  background: #17101f;
+}
+.pf-token-screen .pf-practice-quote p {
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 4px 0;
+}
+.pf-token-screen .pf-practice-quote small {
+  font-size: 9px;
+  line-height: 1.5;
+}
+.pf-token-screen .pf-current-position {
+  padding-top: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #3a2b46;
+}
+.pf-token-screen .pf-current-position h3,
+.pf-token-screen .pf-ticket-recent h3,
+.pf-token-screen .pf-terminal-competition h3 {
+  font-size: 12px;
+  margin: 4px 0 9px;
+}
+.pf-token-screen .pf-current-position dl > div,
+.pf-token-screen .pf-terminal-competition dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  margin: 7px 0;
+}
+.pf-token-screen .pf-current-position dt {
+  color: #a494b4;
+}
+.pf-token-screen .pf-current-position dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.pf-token-screen .pf-current-position small,
+.pf-token-screen .pf-realized-summary small {
+  font-size: 9px;
+  line-height: 1.5;
+}
+.pf-token-screen .pf-realized-summary {
+  font-size: 11px;
+}
+.pf-token-screen .pf-ticket-recent,
+.pf-token-screen .pf-terminal-competition {
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #3a2b46;
+  border-radius: 6px;
+  background: #110d18;
+}
+.pf-ticket-recent > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  gap: 6px;
+  padding: 4px 0;
+}
+.pf-terminal-competition header,
+.pf-terminal-analytics-body header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.pf-terminal-competition p,
+.pf-terminal-competition small {
+  font-size: 10px;
+  color: #b5a6c5;
+  line-height: 1.5;
+  margin: 5px 0;
+}
+.pf-terminal-competition a {
+  font-size: 10px;
+  color: #d2adf7;
+}
+.pf-token-screen .pf-chart-controls {
+  padding: 10px;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.pf-token-screen .pf-chart-controls > div:first-child {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pf-token-screen .pf-chart-intervals {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.pf-token-screen .pf-chart-intervals button {
+  padding: 6px 8px;
+  font-size: 11px;
+  min-width: 34px;
+}
+.pf-token-screen .pf-chart-controls button,
+.pf-token-screen .pf-chart-controls select {
+  border-radius: 4px;
+}
+.pf-token-screen .pf-price-ohlc {
+  font-size: 10px;
+  gap: 9px;
+  padding: 7px 12px;
+  flex-wrap: wrap;
+}
+.pf-token-screen .pf-chart-provenance {
+  padding: 8px 10px;
+  font-size: 9px;
+  line-height: 1.5;
+  gap: 5px 12px;
+  color: #a79ab6;
+}
+.pf-token-screen .pf-chart-source {
+  font-size: 10px;
+  padding: 7px 10px;
+}
+.pf-token-screen .pf-analytics-tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 7px;
+  background: #181121;
+}
+.pf-token-screen .pf-analytics-tabs button {
+  padding: 9px 12px;
+  font-size: 11px;
+  flex: none;
+  border-radius: 5px;
+}
+.pf-terminal-analytics-body {
+  padding: 12px;
+  min-height: 210px;
+}
+.pf-terminal-analytics-body h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+.pf-terminal-analytics-body p {
+  font-size: 10px;
+  color: #a99ab9;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.pf-terminal-analytics-body a {
+  color: #d0b1ed;
+}
+.pf-terminal-analytics-body th {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.pf-terminal-analytics-body td {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pf-terminal-analytics-body .table-scroll {
+  max-height: 340px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.pf-analytics-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 10px;
+  background: #1c1427;
+  border-radius: 5px;
+}
+.pf-analytics-kpis span {
+  font-size: 10px;
+  color: #b7a3c9;
+}
+.pf-analytics-kpis b {
+  display: block;
+  font-size: 16px;
+  color: #dfd3eb;
+  margin-top: 4px;
+}
+@media (max-width: 1000px) {
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-terminal-grid {
+    grid-template-columns: minmax(0, 1fr) 310px;
+  }
+  .pf-token-screen .pf-practice-order {
+    padding: 11px;
+  }
+  .pf-token-screen .pf-token-stats {
+    gap: 12px;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell:has(.pf-token-screen) .obsidian-header nav {
+    display: flex;
+    gap: 4px;
+    scroll-padding-inline: 8px;
+  }
+  .app-shell:has(.pf-token-screen) .obsidian-header nav .nav-item {
+    display: inline-flex;
+    padding: 10px 12px;
+    flex: none;
+  }
+  .pf-token-screen:not(.pf-portfolio-screen) {
+    padding: 10px;
+  }
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-terminal-grid {
+    display: block;
+  }
+  .pf-token-screen:not(.pf-portfolio-screen) .pf-token-market {
+    display: block;
+  }
+  .pf-token-screen .pf-token-header {
+    padding: 10px;
+    min-height: 70px;
+  }
+  .pf-token-screen .pf-token-header h1 {
+    font-size: 18px;
+  }
+  .pf-token-screen .pf-token-platform {
+    font-size: 10px;
+  }
+  .pf-token-screen .pf-token-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 10px;
+  }
+  .pf-token-screen .pf-token-stats strong {
+    font-size: 14px;
+  }
+  .pf-token-screen .pf-token-stats small {
+    font-size: 9px;
+  }
+  .pf-token-screen .pf-price-canvas {
+    height: 340px;
+  }
+  .pf-token-screen .pf-practice-order {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+  }
+  .pf-token-screen .pf-mobile-workspace {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    padding: 7px;
+    background: #100c18;
+    display: flex;
+    gap: 6px;
+  }
+  .pf-token-screen .pf-mobile-workspace button {
+    flex: 1;
+    padding: 11px;
+    font-size: 12px;
+  }
+  .pf-token-screen .pf-terminal-grid[data-mobile-view='trade'] .pf-token-market {
+    display: none;
+  }
+  .pf-token-screen .pf-terminal-grid[data-mobile-view='chart'] .pf-practice-order {
+    display: none;
+  }
+  .pf-token-screen .pf-token-analytics {
+    margin-top: 10px;
+  }
+  .pf-token-screen .pf-trade-socials {
+    gap: 5px;
+    padding: 7px;
+  }
+  .pf-token-screen .pf-chart-controls > div:first-child small {
+    font-size: 9px;
+    max-width: 60%;
+  }
+}

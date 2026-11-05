@@ -1,0 +1,491 @@
+/* Shared terminal rhythm. Presentation only: no pricing, accounting or eligibility overrides. */
+.app-shell {
+  --launch-line: #30283f;
+  --launch-muted: #b2a6c3;
+  background: #0d0b14;
+}
+.app-shell .obsidian-header {
+  min-height: 58px;
+  padding: 0 22px;
+  gap: 22px;
+  background: #12101c;
+  border-bottom: 1px solid var(--launch-line);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.app-shell .obsidian-header .app-brand {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.app-shell .obsidian-header nav {
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+}
+.app-shell .obsidian-header .nav-item {
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.app-shell .obsidian-header .nav-item.active {
+  background: #30213f;
+  color: #dec4ff;
+  box-shadow: inset 0 0 0 1px #573b70;
+}
+.app-shell .pf-night-side {
+  display: none;
+}
+.app-shell .pf-night-workspace {
+  display: block;
+}
+.app-shell .pf-night-page {
+  padding: 18px 22px 32px;
+  max-width: 1900px;
+  margin: auto;
+  min-width: 0;
+}
+.app-shell .pf-night-page > .page {
+  padding: 0;
+  max-width: none;
+}
+.app-shell .pf-night-page .page-title {
+  padding: 12px 0;
+  max-width: 850px;
+  margin: 0 0 12px;
+}
+.app-shell .page-title p {
+  margin: 6px 0;
+}
+.app-shell .pf-live-leaderboard > p {
+  font-size: 11px;
+  color: var(--launch-muted);
+  margin: 0 0 10px;
+}
+.app-shell .pf-board-skeleton {
+  min-height: 230px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--launch-line);
+  border-radius: 7px;
+  color: var(--launch-muted);
+  font-size: 12px;
+}
+.app-shell .pf-board-skeleton i {
+  display: block;
+  height: 34px;
+  background: linear-gradient(90deg, #1b1425, #2a1d39, #1b1425);
+  border-radius: 4px;
+}
+.app-shell .pf-order-held {
+  color: #bfa3dc;
+  font-size: 9px;
+  max-width: 75px;
+  line-height: 1.4;
+}
+.app-shell .pf-night-page .page-title h1 {
+  font-size: 27px;
+  margin: 7px 0;
+}
+.app-shell .notice {
+  margin: 8px 22px;
+  padding: 9px 12px;
+  font-size: 11px;
+}
+.app-shell .reward-metrics {
+  gap: 10px;
+}
+.app-shell .reward-metric {
+  padding: 15px;
+  border-radius: 7px;
+}
+.app-shell .reward-pool-grid {
+  gap: 14px;
+}
+.app-shell .rewards-page .panel {
+  padding: 18px;
+}
+.app-shell .rewards-page .panel-head {
+  margin-bottom: 12px;
+}
+.app-shell .reward-hold {
+  margin-bottom: 16px;
+  padding: 14px;
+}
+.app-shell .competition-bar {
+  min-height: 38px;
+  padding: 7px 22px;
+  font-size: 11px;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.app-shell .competition-bar .timer {
+  font-variant-numeric: tabular-nums;
+}
+.app-shell h1 {
+  font-size: 27px;
+  letter-spacing: -0.035em;
+}
+.app-shell .page-heading {
+  margin-bottom: 18px;
+  gap: 12px;
+}
+.app-shell .page-heading p {
+  font-size: 12px;
+  color: var(--launch-muted);
+  line-height: 1.6;
+}
+.app-shell .panel {
+  border-color: var(--launch-line);
+  border-radius: 8px;
+}
+.app-shell :is(button, a, input, select, summary):focus-visible {
+  outline: 2px solid #c697fa;
+  outline-offset: 3px;
+}
+.app-shell :is(button, a, summary) {
+  transition:
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease;
+}
+.app-shell button:disabled {
+  cursor: not-allowed;
+}
+.app-shell .pf-competition-summary {
+  padding: 16px;
+  margin-bottom: 18px;
+  background: linear-gradient(115deg, #1b1427, #110e1b);
+}
+.app-shell .pf-competition-summary p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+.app-shell .pf-competition-heading strong {
+  font-size: 15px;
+}
+.app-shell .pf-competition-metrics {
+  gap: 10px;
+  margin: 14px 0;
+}
+.app-shell .pf-competition-metrics > div {
+  gap: 8px;
+  padding: 13px;
+  border-color: #382d47;
+  background: #15101f;
+  min-height: 107px;
+  align-content: start;
+}
+.app-shell .pf-competition-metrics b {
+  font-size: 22px;
+  letter-spacing: -0.025em;
+}
+.app-shell .pf-competition-metrics > div:first-child b {
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.app-shell .pf-competition-metrics > div:first-child span {
+  color: #d9b6ff;
+  font-size: 23px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.app-shell .pf-competition-limits {
+  padding: 11px 0;
+  gap: 9px 22px;
+}
+.app-shell .pf-recorded-distribution details {
+  padding: 10px 12px;
+  margin: 8px 0;
+}
+.app-shell .table-scroll {
+  overflow-x: auto;
+  scrollbar-color: #513863 transparent;
+  border-radius: 7px;
+}
+.app-shell table {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+}
+.app-shell th {
+  font-size: 10px;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+  color: #b9a7cf;
+  background: #191321;
+  white-space: nowrap;
+}
+.app-shell :is(td, th) {
+  padding: 12px 14px;
+  border-color: #2a2235;
+}
+.app-shell tbody tr:hover {
+  background: #22182d;
+}
+.app-shell tbody tr.user-row {
+  background: #251833;
+  box-shadow: inset 2px 0 #b87aeb;
+}
+.app-shell .pf-website-picker {
+  position: relative;
+}
+.app-shell .pf-web-search-results {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  right: 12px;
+  z-index: 25;
+  max-height: 310px;
+  overflow: auto;
+  padding: 5px;
+  background: #1c1529;
+  border: 1px solid #61417b;
+  border-radius: 8px;
+  box-shadow: 0 16px 32px #0009;
+}
+.app-shell .pf-web-search-results button {
+  padding: 12px;
+}
+.app-shell .pf-web-search-results button:hover {
+  background: #352244;
+}
+.app-shell .pf-web-picker-note {
+  line-height: 1.5;
+}
+.app-shell .pf-web-search-status {
+  display: block;
+  min-height: 18px;
+  margin: 6px 0;
+}
+.app-shell .pf-ticket-refresh {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  color: var(--launch-muted);
+  font-size: 10px;
+}
+.app-shell .pf-website-picker {
+  padding: 16px;
+  margin: 12px 0;
+  border-radius: 8px;
+}
+.app-shell .pf-website-picker-heading h2 {
+  font-size: 20px;
+  margin: 5px 0 12px;
+}
+.app-shell .pf-web-search input {
+  padding: 11px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+.app-shell .pf-web-search button {
+  border-radius: 6px;
+}
+.app-shell .account-strip {
+  border-radius: 7px;
+  margin-bottom: 14px;
+}
+.app-shell .account-strip .metric {
+  padding: 14px 16px;
+}
+.app-shell .pf-web-workbench {
+  gap: 16px;
+}
+.app-shell .order-panel .ticket {
+  padding: 16px;
+}
+.app-shell .panel-head {
+  padding: 15px 16px;
+}
+.app-shell .pf-chart-empty {
+  min-height: 350px;
+  display: grid;
+  place-content: center;
+  color: #b5a2cc;
+  background: linear-gradient(120deg, #171221, #110e19);
+}
+.app-shell .pf-portfolio-overview {
+  padding: 18px;
+  margin: 12px 0 16px;
+  background: #17101f;
+  border: 1px solid #40304f;
+  border-radius: 9px;
+}
+.app-shell .pf-portfolio-overview > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.app-shell .pf-portfolio-overview h1 {
+  margin: 4px 0;
+}
+.app-shell .pf-portfolio-overview p {
+  color: var(--launch-muted);
+  font-size: 12px;
+}
+.app-shell .pf-portfolio-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+.app-shell .pf-portfolio-metrics > div {
+  display: grid;
+  gap: 9px;
+  padding: 15px;
+  min-width: 0;
+  background: #100d18;
+  border: 1px solid #32273e;
+  border-radius: 6px;
+}
+.app-shell .pf-portfolio-metrics small {
+  color: var(--launch-muted);
+  font-size: 11px;
+}
+.app-shell .pf-portfolio-metrics strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.app-shell .pf-portfolio-screen .pf-terminal-grid {
+  display: block;
+}
+.app-shell .pf-portfolio-screen :is(.pf-practice-order, .pf-mobile-workspace, .pf-trade-switcher) {
+  display: none;
+}
+.app-shell .pf-portfolio-screen .pf-token-market {
+  display: block;
+}
+.app-shell .pf-portfolio-content {
+  min-width: 0;
+}
+.app-shell .pf-portfolio-content .panel {
+  padding: 18px;
+}
+.app-shell .pf-portfolio-content .pf-analytics-tabs {
+  margin-bottom: 14px;
+}
+.app-shell .pf-portfolio-content table {
+  min-width: 700px;
+}
+.app-shell .pf-pulse-token {
+  contain: layout style;
+}
+@media (max-width: 1100px) {
+  .app-shell .pf-row-quick .pf-quick-buy-glyph {
+    display: none;
+  }
+  .app-shell .obsidian-header {
+    gap: 12px;
+    padding-inline: 14px;
+    flex-wrap: wrap;
+  }
+  .app-shell .obsidian-header .app-brand small {
+    display: none;
+  }
+  .app-shell .obsidian-header .nav-item {
+    padding-inline: 9px;
+  }
+  .app-shell .pf-night-page {
+    padding: 14px;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell .obsidian-header {
+    display: flex;
+    padding: 10px 12px 0;
+    gap: 9px;
+  }
+  .app-shell .obsidian-header nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 9px;
+    scrollbar-width: none;
+  }
+  .app-shell .obsidian-header > :last-child:not(nav) {
+    margin-left: auto;
+  }
+  .app-shell .obsidian-header .nav-item {
+    padding: 9px 12px;
+  }
+  .app-shell .pf-night-page {
+    padding: 12px 10px 24px;
+  }
+  .app-shell .competition-bar {
+    padding: 9px 12px;
+    gap: 8px 14px;
+  }
+  .app-shell .competition-bar .round-chip {
+    display: none;
+  }
+  .app-shell h1 {
+    font-size: 24px;
+  }
+  .app-shell .pf-competition-summary {
+    padding: 12px;
+  }
+  .app-shell .pf-competition-metrics,
+  .app-shell .pf-portfolio-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .app-shell .pf-competition-metrics > div {
+    padding: 11px;
+    min-height: 112px;
+  }
+  .app-shell .pf-competition-metrics b {
+    font-size: 18px;
+  }
+  .app-shell .pf-competition-metrics span {
+    line-height: 1.5;
+  }
+  .app-shell .pf-portfolio-overview {
+    padding: 13px;
+  }
+  .app-shell .pf-portfolio-overview > header {
+    align-items: flex-start;
+  }
+  .app-shell .pf-portfolio-metrics > div {
+    padding: 12px;
+  }
+  .app-shell .pf-portfolio-metrics strong {
+    font-size: 17px;
+  }
+  .app-shell :is(td, th) {
+    padding: 11px 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell :is(button, a, summary) {
+    transition: none;
+  }
+}
+
+/* Recorded result labels and UTC ranges must fit narrow owner-review screens. */
+.app-shell .board-context {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.app-shell .board-context > span {
+  overflow-wrap: anywhere;
+}
+.app-shell .round-complete > div {
+  min-width: 0;
+  max-width: 100%;
+}
+.app-shell .round-complete .metric strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .app-shell .round-complete .metric {
+    padding: 0;
+    width: 100%;
+  }
+}

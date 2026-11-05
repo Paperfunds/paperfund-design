@@ -1,0 +1,331 @@
+.pf-paper-controls {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 28px;
+  margin: 0 0 8px;
+  color: #b8a8cb;
+  font-size: 10px;
+  flex-wrap: wrap;
+}
+.pf-paper-label {
+  color: #bc9de3;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  border: 1px solid #503766;
+  border-radius: 3px;
+  padding: 3px 5px;
+  white-space: nowrap;
+}
+.pf-paper-controls .pf-control {
+  padding: 5px 8px;
+  font-size: 10px;
+}
+.pf-paper-cash {
+  font-variant-numeric: tabular-nums;
+  color: #e3d4f6;
+}
+.pf-paper-cash small {
+  margin-left: 6px;
+  color: #8e7ca4;
+}
+.pf-paper-notice {
+  color: #85d7b7;
+}
+.pf-buy-settings {
+  position: relative;
+  margin-left: auto;
+}
+.pf-buy-settings summary {
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #bfa0e5;
+  list-style: none;
+}
+.pf-buy-settings form,
+.pf-column-options {
+  position: absolute;
+  z-index: 25;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 255px;
+  padding: 14px;
+  background: #1b1426;
+  border: 1px solid #63467e;
+  border-radius: 7px;
+  box-shadow: 0 12px 40px #0008;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pf-buy-settings label,
+.pf-column-options label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  color: #c3b0d3;
+}
+.pf-buy-settings small,
+.pf-column-options small {
+  font-size: 10px;
+  color: #9482a6;
+  line-height: 1.5;
+}
+.pf-buy-settings input,
+.pf-buy-settings select,
+.pf-column-options input,
+.pf-column-options select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: #100d18;
+  color: #eee0ff;
+  border: 1px solid #4b365f;
+  border-radius: 4px;
+  padding: 6px;
+  font: inherit;
+}
+.pf-column-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pf-column-controls {
+  position: relative;
+}
+.pf-column-controls summary {
+  color: #a08cb7;
+  cursor: pointer;
+  font-size: 10px;
+  list-style: none;
+}
+.pf-column-controls[open] summary {
+  color: #e5caff;
+}
+.pf-column-options {
+  max-height: min(480px, 65dvh);
+  overflow-y: auto;
+}
+.pf-column-options .pf-filter-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+.pf-column-options input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  accent-color: #a577d7;
+}
+.pf-terminal-pulse .pf-pulse-column-head {
+  overflow: visible;
+}
+.pf-row-actions {
+  flex-wrap: wrap;
+  row-gap: 5px;
+}
+.pf-row-quick {
+  display: flex;
+  gap: 3px;
+  flex: 0 0 100%;
+}
+.pf-row-quick button {
+  border: 1px solid #454032;
+  border-radius: 3px;
+  background: #202318;
+  color: #c9dfa5;
+  padding: 4px 2px;
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 1.1;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pf-row-quick button:hover {
+  color: #e7ffc9;
+  background: #303e24;
+  border-color: #748e52;
+}
+.pf-row-quick button:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+.pf-row-activity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #8e7e9f;
+  font-size: 9px;
+  line-height: 1.2;
+}
+.pf-row-activity b {
+  font-weight: 550;
+  color: #b5a0c8;
+}
+.pf-row-activity span:first-child b {
+  margin-left: 4px;
+}
+.pf-authority-badges {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 8px;
+  color: #b99c7c;
+  white-space: nowrap;
+}
+.pf-token-description {
+  flex-basis: 100%;
+  line-height: 1.5;
+}
+.pf-terminal-pulse .pf-row-flags {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pf-terminal-pulse .pf-curve-inline {
+  margin-left: 0;
+}
+.pf-terminal-pulse .pf-row-name small {
+  color: #ada0bd;
+}
+.pf-terminal-pulse .pf-row-metrics small {
+  color: #a18dae;
+}
+.pf-terminal-pulse .pf-row-metadata .pf-contract {
+  color: #aa93bb;
+}
+.pf-terminal-pulse .pf-row-age {
+  color: #c0a8d6;
+}
+.pf-buy-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #080510aa;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.pf-buy-sheet {
+  width: 390px;
+  max-width: 100%;
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid #80599e;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #23192f, #100d19);
+  box-shadow: 0 20px 80px #0009;
+  color: #c7b4dc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pf-buy-sheet h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #f2e6ff;
+}
+.pf-buy-sheet code {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  color: #9a83b0;
+}
+.pf-buy-sheet p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.pf-buy-sheet button {
+  cursor: pointer;
+}
+.pf-buy-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px;
+  background: #110d1b;
+  border: 1px solid #42304e;
+  border-radius: 6px;
+}
+.pf-buy-quote small {
+  color: #9a82ae;
+  font-size: 10px;
+}
+.pf-quick-confirm {
+  border: 1px solid #bb99ed;
+  border-radius: 5px;
+  background: linear-gradient(110deg, #c09afd, #9063d0);
+  color: #180e25;
+  font-weight: 750;
+  padding: 11px;
+}
+.pf-quick-confirm:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+.pf-buy-sheet-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+.pf-buy-sheet-footer a {
+  font-size: 11px;
+  color: #b79ad1;
+}
+.pf-buy-uncertain {
+  padding: 10px;
+  border: 1px solid #805f35;
+  background: #352515;
+  color: #ebc892;
+}
+.pf-buy-sheet [role='alert'],
+.pf-buy-settings [role='alert'] {
+  color: #e9a1bb;
+}
+@media (max-width: 760px) {
+  .pf-paper-controls {
+    font-size: 9px;
+    gap: 5px;
+  }
+  .pf-paper-cash small {
+    display: none;
+  }
+  .pf-paper-controls .pf-control {
+    padding: 5px;
+    font-size: 9px;
+  }
+  .pf-column-options {
+    right: -6px;
+    width: 245px;
+  }
+  .pf-column-controls summary {
+    font-size: 9px;
+  }
+  .pf-buy-backdrop {
+    align-items: flex-end;
+    padding: 8px;
+  }
+  .pf-buy-sheet {
+    padding: 16px;
+    max-height: 90dvh;
+  }
+  .pf-terminal-pulse .pf-pulse-token {
+    grid-template-columns: minmax(0, 1fr) 118px;
+  }
+  .pf-row-quick button {
+    font-size: 8px;
+  }
+  .pf-authority-badges {
+    font-size: 7px;
+  }
+  .pf-row-activity {
+    gap: 5px;
+    font-size: 8px;
+  }
+}
